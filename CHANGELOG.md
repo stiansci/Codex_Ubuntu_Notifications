@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.12
+
+- Write VSIX build artifacts to the ignored `dist/` directory.
+- Keep package verification and explicit installation pointed at the versioned artifact there.
+
 ## 1.1.11
 
 - Distribute the approved ambient WAV presets while keeping their production scripts private.

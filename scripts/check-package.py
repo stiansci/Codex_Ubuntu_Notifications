@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 
 root = Path(__file__).resolve().parent.parent
 package = json.loads((root / "package.json").read_text())
-vsix = root / f'{package["name"]}-{package["version"]}.vsix'
+vsix = root / "dist" / f'{package["name"]}-{package["version"]}.vsix'
 expected = {"package.json", "extension.js", "preview-overlay.js", "codex-notifier.png", "icon.svg",
             "README.md", "CHANGELOG.md", "LICENSE", "ASSETS.md", "TESTING.md"}
 expected.update({"lib/core.js", "lib/extension.js", "lib/monitor.js", "lib/platform.js", "lib/theme.js", "lib/worker.py",

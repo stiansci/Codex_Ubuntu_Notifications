@@ -1,4 +1,4 @@
-# Release verification for 1.1.11
+# Release verification for 1.1.12
 
 ## Automated checks
 
@@ -33,7 +33,7 @@ In the development host:
 10. Install the generated VSIX explicitly in a separate VS Code profile and repeat steps 1 through 4:
 
 ```bash
-code --profile CodexNotifierReleaseTest --install-extension codex-ubuntu-notifications-1.1.11.vsix
+code --profile CodexNotifierReleaseTest --install-extension dist/codex-ubuntu-notifications-1.1.12.vsix
 code --profile CodexNotifierReleaseTest --new-window .
 ```
 
