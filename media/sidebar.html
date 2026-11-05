@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src ${cspSource}; style-src ${cspSource};">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="${styleUri}">
+</head>
+<body>
+  <div class="header">
+    <div class="header-title">
+      <svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span>Codex Ubuntu Notifications</span>
+    </div>
+    <span id="statusBadge" class="badge off">Checking</span>
+  </div>
+
+  <div class="card"><div class="section-title">Configuration</div><div id="diagnostics" class="diagnostics">Checking dependencies...</div><button id="checkBtn" class="btn btn-secondary btn-full">Check Configuration</button></div>
+
+  <div class="card">
+    <div class="section-title">General</div>
+    <div class="row">
+      <div class="label-col">
+        <span class="label-title">Enable Notifications</span>
+        <span class="label-sub">Alert when Codex finishes a turn</span>
+      </div>
+      <input type="checkbox" id="enabledToggle" />
+    </div>
+
+    <div class="row layout-0">
+      <div class="label-col">
+        <span class="label-title">When to Notify</span>
+        <span class="label-sub">Choose whether focused windows notify</span>
+      </div>
+      <select id="modeSelect">
+        <option value="always">Always (even when window is focused)</option>
+        <option value="unfocused">Only when VS Code window is unfocused</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <div class="label-col">
+        <span class="label-title">Ubuntu Desktop Popup</span>
+        <span class="label-sub">System top banner notification</span>
+      </div>
+      <input type="checkbox" id="desktopToggle" />
+    </div>
+
+    <div class="row">
+      <div class="label-col">
+        <span class="label-title">Bottom-Left Answer Preview</span>
+        <span class="label-sub">Optional GTK3 card on X11/XWayland</span>
+      </div>
+      <input type="checkbox" id="previewCardToggle" />
+    </div>
+
+    <div id="previewDurationWrap" class="slider-wrap layout-1">
+      <div class="slider-header">
+        <span>Preview Card Duration</span>
+        <span id="previewDurationLabel">7s</span>
+      </div>
+      <input type="range" id="previewDurationSlider" min="3" max="20" step="1" />
+    </div>
+
+    <div class="row">
+      <div class="label-col">
+        <span class="label-title">VS Code In-Editor Toast</span>
+        <span class="label-sub">Bottom-right toast inside VS Code</span>
+      </div>
+      <input type="checkbox" id="toastToggle" />
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Sound & Volume</div>
+    <div class="row">
+      <div class="label-col">
+        <span class="label-title">Play Completion Sound</span>
+        <span class="label-sub">PipeWire, PulseAudio or WAV-only ALSA</span>
+      </div>
+      <input type="checkbox" id="soundToggle" />
+    </div>
+
+    <div class="layout-2">
+      <div class="label-title layout-3">Sound Tone</div>
+      <div class="sound-row">
+        <select id="soundSelect"></select>
+        <button class="btn btn-secondary" id="previewBtn" title="Preview selected sound">
+          <svg class="svg-icon" viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4" fill="currentColor" stroke="none"/></svg>
+          <span>Preview</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="slider-wrap">
+      <div class="slider-header">
+        <span>Volume</span>
+        <span id="volumeLabel">55%</span>
+      </div>
+      <input type="range" id="volumeSlider" min="5" max="100" step="5" />
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Custom Sounds</div>
+    <div class="label-sub">Import your own .wav, .ogg, .oga, .mp3, or .flac sound files.</div>
+    <button class="btn btn-secondary btn-full" id="importBtn">
+      <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span>Import Custom Sound File</span>
+    </button>
+    <div id="customList" class="custom-list"></div>
+  </div>
+
+  <button class="btn btn-full" id="testBtn">
+    <svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    <span>Send Test Notification Now</span>
+  </button>
+
+  <script src="${scriptUri}"></script>
+</body>
+</html>

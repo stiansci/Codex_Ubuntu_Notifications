@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <defs><mask id="badge-space"><rect width="24" height="24" fill="white" stroke="none"/><circle cx="18" cy="6" r="5.2" fill="black" stroke="none"/></mask></defs>
+  <g mask="url(#badge-space)"><path d="M6.4 10a5.1 5.1 0 0 1 10.2 0c0 4.1.5 5.5 2 7H4.4c1.5-1.5 2-2.9 2-7Z"/><path d="M9.3 20a2.4 2.4 0 0 0 4.4 0M11.5 3V2"/></g>
+  <circle cx="18" cy="6" r="3.8"/><path d="m16.3 6 1.2 1.2L19.7 5"/>
+</svg>

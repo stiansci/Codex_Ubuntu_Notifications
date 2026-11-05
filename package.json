@@ -1,0 +1,166 @@
+{
+  "name": "codex-ubuntu-notifications",
+  "displayName": "Codex Ubuntu Notifications",
+  "publisher": "KaroTechnica",
+  "author": {
+    "name": "KaroTechnica",
+    "url": "https://github.com/stiansci"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stiansci/Codex_Ubuntu_Notifications.git"
+  },
+  "version": "1.1.11",
+  "description": "Desktop completion notifications, optional answer previews and audio for local Codex workspaces on Ubuntu, with dependency diagnostics.",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onView:codexNotifier.sidebarView"
+  ],
+  "icon": "codex-notifier.png",
+  "main": "./extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "codexNotifierContainer",
+          "title": "Codex Ubuntu Notifications",
+          "icon": "icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "codexNotifierContainer": [
+        {
+          "type": "webview",
+          "id": "codexNotifier.sidebarView",
+          "name": "Codex Ubuntu Notifications"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "codexNotifier.testNotification",
+        "title": "Codex Ubuntu Notifications: Send Test Notification"
+      },
+      {
+        "command": "codexNotifier.importSound",
+        "title": "Codex Ubuntu Notifications: Import Custom Sound File"
+      },
+      {
+        "command": "codexNotifier.checkConfiguration",
+        "title": "Codex Ubuntu Notifications: Check Configuration"
+      }
+    ],
+    "configuration": {
+      "title": "Codex Ubuntu Notifications",
+      "properties": {
+        "codexNotifier.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable notifications when Codex finishes answering a turn.",
+          "scope": "machine"
+        },
+        "codexNotifier.mode": {
+          "type": "string",
+          "enum": [
+            "always",
+            "unfocused"
+          ],
+          "default": "always",
+          "description": "When to notify: 'always' (even when VS Code is focused) or 'unfocused' (only when VS Code is in the background).",
+          "scope": "machine"
+        },
+        "codexNotifier.desktopNotification": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show an Ubuntu desktop notification (via notify-send) when Codex finishes.",
+          "scope": "machine"
+        },
+        "codexNotifier.previewCard": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show an optional answer preview using GTK3 on X11/XWayland. Falls back to a native notification when unavailable.",
+          "scope": "machine"
+        },
+        "codexNotifier.previewDuration": {
+          "type": "number",
+          "default": 7,
+          "minimum": 3,
+          "maximum": 20,
+          "description": "How many seconds the bottom-left answer preview card remains visible (3-20).",
+          "scope": "machine"
+        },
+        "codexNotifier.sound": {
+          "type": "boolean",
+          "default": true,
+          "description": "Play completion audio via available PipeWire, PulseAudio or ALSA backends.",
+          "scope": "machine"
+        },
+        "codexNotifier.soundChoice": {
+          "type": "string",
+          "default": "synth-1",
+          "description": "Selected sound preset or imported custom sound filename.",
+          "scope": "machine"
+        },
+        "codexNotifier.volume": {
+          "type": "number",
+          "default": 55,
+          "minimum": 5,
+          "maximum": 100,
+          "description": "Notification sound volume percentage (5-100).",
+          "scope": "machine"
+        },
+        "codexNotifier.vscodeToast": {
+          "type": "boolean",
+          "default": false,
+          "description": "Also show an in-editor VS Code information toast notification.",
+          "scope": "machine"
+        },
+        "codexNotifier.codexHome": {
+          "type": "string",
+          "default": "",
+          "scope": "machine",
+          "description": "Absolute path to the local Codex home. Empty uses CODEX_HOME, then ~/.codex. Only the documented database schema is supported."
+        }
+      }
+    }
+  },
+  "homepage": "https://github.com/stiansci/Codex_Ubuntu_Notifications#readme",
+  "bugs": {
+    "url": "https://github.com/stiansci/Codex_Ubuntu_Notifications/issues"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "extensionKind": [
+    "ui"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "Local Codex databases and desktop processes require a trusted workspace."
+    },
+    "virtualWorkspaces": {
+      "supported": false
+    }
+  },
+  "scripts": {
+    "test": "node scripts/run-tests.js && python3 -m unittest discover -s test -p \"test_*.py\"",
+    "package": "vsce package --no-dependencies",
+    "package:check": "python3 scripts/check-package.py",
+    "assets:icons": "python3 scripts/generate-assets.py"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "4.1.0"
+  },
+  "vsce": {
+    "dependencies": false
+  },
+  "overrides": {
+    "minimatch": "11.0.1"
+  }
+}

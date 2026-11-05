@@ -1,0 +1,45 @@
+# VS Code Extension Packaging
+*.vsix
+
+# Keep private audio production sources out of the public repository.
+scripts/generate-sounds*.py
+scripts/sound-design/
+
+# Node.js & Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+yarn.lock
+pnpm-lock.yaml
+
+# Build & Test Output
+out/
+dist/
+coverage/
+.vscode-test/
+
+# Python Bytecode & Environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# Editor & IDE Directories
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# OS Metadata
+.DS_Store
+Thumbs.db
+.directory

@@ -1,0 +1,31 @@
+name: Validate extension
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  validate:
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, ubuntu-24.04]
+        python: ['3.10', '3.12']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: aiml
+          python-version: ${{ matrix.python }}
+          auto-activate-base: false
+      - name: Test and package
+        shell: bash -el {0}
+        run: |
+          npm ci
+          npm test
+          npm run package
+          npm run package:check

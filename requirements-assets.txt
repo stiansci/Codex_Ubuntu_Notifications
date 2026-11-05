@@ -1,0 +1,2 @@
+# Development only. Not required by VS Code users or included in the VSIX.
+Pillow==12.3.0
