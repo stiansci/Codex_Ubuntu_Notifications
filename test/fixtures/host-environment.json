@@ -1,0 +1,32 @@
+[
+  {
+    "name": "clean custom host settings",
+    "source": {"PATH": "/usr/bin", "DISPLAY": ":0", "LD_LIBRARY_PATH": "/custom/lib", "GTK_THEME": "custom"},
+    "expected": {"PATH": "/usr/bin", "DISPLAY": ":0", "LD_LIBRARY_PATH": "/custom/lib", "GTK_THEME": "custom"}
+  },
+  {
+    "name": "Snap markers and private session values",
+    "source": {"SNAP_NAME": "code", "SNAP_LIBRARY_PATH": "/var/lib/snapd/lib", "LD_LIBRARY_PATH": "/snap/core20/current/lib", "GI_TYPELIB_PATH": "/snap/code/current/lib/girepository", "DISPLAY": ":0", "WAYLAND_DISPLAY": "wayland-0", "DBUS_SESSION_BUS_ADDRESS": "unix:path=/tmp/session", "XAUTHORITY": "/tmp/auth", "PULSE_SERVER": "unix:/tmp/pulse"},
+    "expected": {"DISPLAY": ":0", "WAYLAND_DISPLAY": "wayland-0", "DBUS_SESSION_BUS_ADDRESS": "unix:path=/tmp/session", "XAUTHORITY": "/tmp/auth", "PULSE_SERVER": "unix:/tmp/pulse", "XDG_DATA_DIRS": "/usr/local/share:/usr/share:/var/lib/snapd/desktop", "XDG_CONFIG_DIRS": "/etc/xdg"}
+  },
+  {
+    "name": "Snap markers missing but GTK and GIO paths remain",
+    "source": {"GTK_PATH": "/snap/code/current/usr/lib/gtk-3.0", "GIO_EXTRA_MODULES": "/tmp/profile/snap/code/common/gio", "LD_PRELOAD": "/snap/core20/current/lib/libpthread.so.0", "GCONV_PATH": "/snap/core20/current/lib/gconv", "PYTHONPATH": "/snap/code/current/python", "LANG": "it_IT.UTF-8", "DISPLAY": ":1"},
+    "expected": {"LANG": "it_IT.UTF-8", "DISPLAY": ":1", "XDG_DATA_DIRS": "/usr/local/share:/usr/share:/var/lib/snapd/desktop", "XDG_CONFIG_DIRS": "/etc/xdg"}
+  },
+  {
+    "name": "only a Snap loader variable remains",
+    "source": {"LD_LIBRARY_PATH": "/snap/core20/current/lib/x86_64-linux-gnu", "XDG_RUNTIME_DIR": "/run/user/1000"},
+    "expected": {"XDG_RUNTIME_DIR": "/run/user/1000", "XDG_DATA_DIRS": "/usr/local/share:/usr/share:/var/lib/snapd/desktop", "XDG_CONFIG_DIRS": "/etc/xdg"}
+  },
+  {
+    "name": "normal Ubuntu Snap launcher path is safe",
+    "source": {"PATH": "/usr/bin:/snap/bin", "XDG_DATA_DIRS": "/usr/share:/var/lib/snapd/desktop"},
+    "expected": {"PATH": "/usr/bin:/snap/bin", "XDG_DATA_DIRS": "/usr/share:/var/lib/snapd/desktop"}
+  },
+  {
+    "name": "saved XDG paths also contain Snap application directories",
+    "source": {"SNAP": "/snap/code/current", "XDG_DATA_DIRS_VSCODE_SNAP_ORIG": "/snap/code/current/share:/usr/share", "XDG_CONFIG_DIRS_VSCODE_SNAP_ORIG": "/snap/core20/current/etc:relative"},
+    "expected": {"XDG_DATA_DIRS_VSCODE_SNAP_ORIG": "/snap/code/current/share:/usr/share", "XDG_CONFIG_DIRS_VSCODE_SNAP_ORIG": "/snap/core20/current/etc:relative", "XDG_DATA_DIRS": "/usr/share", "XDG_CONFIG_DIRS": "/etc/xdg"}
+  }
+]

@@ -5,6 +5,7 @@
 !lib/extension.js
 !lib/monitor.js
 !lib/platform.js
+!lib/hostEnvironment.json
 !lib/payload.js
 !lib/native_notification.py
 !lib/dependencies.js

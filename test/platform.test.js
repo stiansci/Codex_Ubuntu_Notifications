@@ -40,6 +40,13 @@ test("host environment is unchanged outside Snap and selectively cleaned inside 
   assert.equal(cleaned.DISPLAY, ":0"); assert.equal(cleaned.DBUS_SESSION_BUS_ADDRESS, "unix:test");
   assert.equal(cleaned.LD_LIBRARY_PATH, undefined); assert.equal(cleaned.XDG_DATA_DIRS, "/original");
 });
+test("host cleanup handles inherited Snap paths without markers and preserves desktop access", () => {
+  for (const fixture of require("./fixtures/host-environment.json")) {
+    const original = { ...fixture.source };
+    assert.deepEqual(hostEnv(fixture.source), fixture.expected, fixture.name);
+    assert.deepEqual(fixture.source, original, "The parent environment must stay unchanged");
+  }
+});
 test("missing binaries and failed probes degrade without launching desktop tools", async () => {
   const desktop = new Desktop({ extensionPath, soundDir: "/nonexistent", env: {}, find: () => null });
   await desktop.check(); assert.equal(desktop.capabilities.python, null);

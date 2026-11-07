@@ -26,6 +26,6 @@ git config --local user.email stiansci@users.noreply.github.com
 
 The public tree retains extension source, original artwork, tests, dependency lockfile, CI, license and user documentation. `.vscodeignore` separately limits the installed VSIX to runtime files and selected documentation. `dist/` is local output; release assets should be selected explicitly.
 
-Version 1.1.22 is a release candidate until the human desktop checklist in [TESTING.md](TESTING.md) is completed for the configurations advertised as tested. Automated fixtures and widget screenshots do not certify actual desktop integration. Record real results and retain unverified entries honestly.
+Version 1.1.23 is a release candidate until the human desktop checklist in [TESTING.md](TESTING.md) is completed for the configurations advertised as tested. Automated fixtures and widget screenshots do not certify actual desktop integration. Record real results and retain unverified entries honestly.
 
 GitHub push and Marketplace publication are separate actions. Confirm the destination repository and publisher ownership before either action. No upload or publication is performed by the release scripts.

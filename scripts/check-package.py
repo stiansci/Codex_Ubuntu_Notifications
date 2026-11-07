@@ -18,6 +18,7 @@ expected.add("lib/topbarArtwork.js")
 expected.add("lib/topbarMenu.js")
 expected.add("lib/dependencies.js")
 expected.update({"lib/payload.js", "lib/native_notification.py"})
+expected.add("lib/hostEnvironment.json")
 expected.update(str(p.relative_to(root)) for p in (root / "docs" / "screenshots").glob("*.png"))
 expected.update(f"media/codex-{color}.svg" for color in ("blue", "blue-dim", "green", "gray"))
 with zipfile.ZipFile(vsix) as archive:

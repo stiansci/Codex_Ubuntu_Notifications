@@ -10,7 +10,7 @@
     "type": "git",
     "url": "https://github.com/stiansci/Codex_Ubuntu_Notifications.git"
   },
-  "version": "1.1.22",
+  "version": "1.1.23",
   "description": "Desktop completion notifications, optional answer previews and audio for local Codex workspaces on Ubuntu, with dependency diagnostics.",
   "engines": {
     "vscode": "^1.90.0"

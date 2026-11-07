@@ -1,4 +1,4 @@
-# Release verification for 1.1.22
+# Release verification for 1.1.23
 
 Status: release candidate. Human desktop validation is pending; no supported desktop is certified by automated tests.
 
@@ -17,6 +17,8 @@ npm run package:check
 Tests use temporary synthetic databases and mocked VS Code/desktop APIs. They do not read personal conversations, connect to a graphical session, install the extension, publish, or validate the GPU. CI runs on Ubuntu 22.04 and 24.04 with Python 3.10 and 3.12 and Node 22. Ubuntu 26.04 and ARM64 remain human validation targets rather than inferred CI coverage.
 
 Local automated evidence for 1.1.22, recorded 2026-11-07: 62 JavaScript tests and 20 Python tests pass in `aiml` with Node 26.6.0 and Python 3.10.20. Additional bounded checks exercised the actual GJS stdin reader with Unicode, invalid JSON and oversized input; real libnotify delivered a synthetic payload to a private D-Bus fixture. Documentation widgets were captured on a virtual display with synthetic content. These checks do not certify a real desktop/session combination.
+
+Version 1.1.23 passes 63 JavaScript tests and 23 Python tests. It adds regression coverage for stale Snap loader/module paths without SNAP markers, including matching JavaScript and Python cleanup results and system desktop-tool selection. Bounded system GTK startup probes also pass with three synthetic contaminated environments on a virtual display. The failed human run of 1.1.22 encountered a GJS shared-library error; it does not count as a passed desktop test.
 
 ## Human desktop run
 
@@ -39,7 +41,7 @@ In the development host:
 10. Install the generated VSIX explicitly in a separate VS Code profile and repeat steps 1 through 4:
 
 ```bash
-code --profile CodexNotifierReleaseTest --install-extension dist/codex-ubuntu-notifications-1.1.22.vsix
+code --profile CodexNotifierReleaseTest --install-extension dist/codex-ubuntu-notifications-1.1.23.vsix
 code --profile CodexNotifierReleaseTest --new-window .
 ```
 
@@ -69,6 +71,8 @@ A desktop/session combination not offered by the distribution is not applicable,
 # Top-bar indicator checks
 
 Run `python -m unittest discover -s test -p test_activity.py` for synthetic chat-count fixtures and `node test/indicator.test.js` for the process lifecycle. From a desktop terminal, `python test/check_indicator_desktop.py` performs a bounded smoke check on a private D-Bus session: idle green/0, active flashing blue/1, completion green/0 and single-instance ownership. It does not read real chat content or install anything.
+
+The smoke check uses the active Python interpreter and system Ubuntu desktop tools. It removes inherited Snap library and module paths even when SNAP markers are absent, while retaining display, authentication, D-Bus and audio session values. A `GLIBC_PRIVATE` symbol error indicates incompatible libraries were loaded, not a missing Ubuntu package. An inotify `No space left on device` warning indicates exhausted file-watcher resources and can occur while disk space is available. Close unused VS Code windows to free watches before retrying; do not delete project files or change system limits just to silence the warning.
 
 After installation, verify the top-bar number across two VS Code workspaces and cancel one running turn. Disable **Flash While Working** in the sidebar to check static blue. The count should update within roughly two seconds. Quiet unfinished sessions become uncertain after 15 minutes, displaying `?` rather than falsely reporting all work finished. Check that closing the owning window lets another open window take over within ten seconds.
 

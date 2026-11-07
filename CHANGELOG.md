@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.23
+
+- Clean inherited Snap library, GTK/GIO module and typelib paths even when terminal sessions no longer contain SNAP or SNAP_NAME.
+- Share the host environment policy between the extension and desktop smoke check; preserve desktop session and audio access.
+- Use system GJS, GDBus and dbus-run-session in the smoke check so Conda or Snap PATH entries cannot shadow Ubuntu desktop tools.
+- Cover partially cleaned environments with shared JavaScript/Python regression fixtures.
+
 ## 1.1.22
 
 - Send GTK preview and native notification payloads through stdin so private answer text and workspace labels do not appear in process arguments.

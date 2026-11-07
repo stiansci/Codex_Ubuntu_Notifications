@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 import json
 import os
 import re
+import shutil
 from pathlib import Path
 import sqlite3
 import subprocess
@@ -15,20 +16,46 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 NAME = "com.karotechnica.CodexActivity"
 OBJECT = "/org/ayatana/NotificationItem/codex_activity"
+HOST_ENVIRONMENT = json.loads((ROOT / "lib" / "hostEnvironment.json").read_text())
+
+
+def host_environment(source):
+    """Match the runtime policy, including Snap module paths without SNAP markers."""
+    env = dict(source)
+    prefixes = tuple(HOST_ENVIRONMENT["prefixes"])
+    keys = HOST_ENVIRONMENT["loaderKeys"]
+    defaults = HOST_ENVIRONMENT["xdgDefaults"]
+    contaminated = any(
+        (key.startswith("SNAP") and value) or
+        ((key.startswith(prefixes) or key in keys or key in defaults) and "/snap/" in value)
+        for key, value in source.items())
+    if not contaminated:
+        return env
+    for key in list(env):
+        if key.startswith(prefixes) or key in keys:
+            env.pop(key, None)
+    for key, fallback in defaults.items():
+        original = source.get(key + "_VSCODE_SNAP_ORIG", "")
+        env[key] = os.pathsep.join(part for part in original.split(os.pathsep)
+                                   if os.path.isabs(part) and "/snap/" not in part) or fallback
+    return env
+
+
+def system_tool(name):
+    """Use Ubuntu desktop tools rather than a Conda or Snap shadow on PATH."""
+    binary = shutil.which(name, path=os.pathsep.join(("/usr/bin", "/bin", "/usr/local/bin")))
+    if not binary:
+        raise RuntimeError(f"Required system desktop tool is unavailable: {name}")
+    return binary
 
 
 def main():
+    env = host_environment(os.environ)
+    env["GDK_BACKEND"] = "x11"
     if "--inside" not in sys.argv:
-        env = dict(os.environ)
-        if env.get("SNAP") or env.get("SNAP_NAME"):
-            for key in list(env):
-                if key.startswith(("SNAP", "GTK_", "GDK_", "GIO_", "GSETTINGS_")) or key in (
-                        "LD_LIBRARY_PATH", "LD_PRELOAD", "LOCPATH", "FONTCONFIG_PATH", "FONTCONFIG_FILE"):
-                    env.pop(key, None)
-            env["XDG_DATA_DIRS"] = "/usr/local/share:/usr/share:/var/lib/snapd/desktop"
-            env["XDG_CONFIG_DIRS"] = "/etc/xdg"
-        env["GDK_BACKEND"] = "x11"
-        return subprocess.run(["dbus-run-session", "--", sys.executable, __file__, "--inside"], env=env, timeout=25).returncode
+        return subprocess.run([system_tool("dbus-run-session"), "--", sys.executable, __file__, "--inside"],
+                              env=env, timeout=25).returncode
+    gjs, gdbus = system_tool("gjs"), system_tool("gdbus")
     with tempfile.TemporaryDirectory(prefix="codex-indicator-smoke-") as folder:
         home = Path(folder)
         rollout = home / "session.jsonl"
@@ -43,17 +70,17 @@ def main():
         config = {"home": str(home), "python": sys.executable, "flash": True,
                   "code": "/usr/bin/true",
                   "colors": {"working": "#8844ee", "finished": "#00aa88"}}
-        args = ["gjs", str(ROOT / "topbar-indicator.js"), json.dumps({**config, "bootstrap": True})]
-        process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        args = [gjs, str(ROOT / "topbar-indicator.js"), json.dumps({**config, "bootstrap": True})]
+        process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env)
         def property_value(name):
-            result = subprocess.run(["gdbus", "call", "--session", "--dest", NAME, "--object-path", OBJECT,
+            result = subprocess.run([gdbus, "call", "--session", "--dest", NAME, "--object-path", OBJECT,
                 "--method", "org.freedesktop.DBus.Properties.Get", "org.kde.StatusNotifierItem", name],
-                capture_output=True, text=True, timeout=2)
+                capture_output=True, text=True, timeout=2, env=env)
             return result.stdout if result.returncode == 0 else ""
         def menu_layout():
-            result = subprocess.run(["gdbus", "call", "--session", "--dest", NAME,
+            result = subprocess.run([gdbus, "call", "--session", "--dest", NAME,
                 "--object-path", OBJECT + "/Menu", "--method", "com.canonical.dbusmenu.GetLayout",
-                "--", "0", "-1", "[]"], capture_output=True, text=True, timeout=2)
+                "--", "0", "-1", "[]"], capture_output=True, text=True, timeout=2, env=env)
             assert result.returncode == 0, result.stderr
             return result.stdout
         def wait_for(predicate):
@@ -79,9 +106,9 @@ def main():
         try:
             wait_for(lambda: "codex-green-0.svg" in property_value("IconName"))
             assert_artwork("0")
-            duplicate = subprocess.run(args, capture_output=True, text=True, timeout=3)
+            duplicate = subprocess.run(args, capture_output=True, text=True, timeout=3, env=env)
             assert duplicate.returncode == 0, duplicate.stderr
-            replacement = subprocess.Popen(args[:2] + [json.dumps(config)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            replacement = subprocess.Popen(args[:2] + [json.dumps(config)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env)
             process.communicate(timeout=3)
             assert process.returncode == 0
             process = replacement

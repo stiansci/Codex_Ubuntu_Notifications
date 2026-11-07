@@ -1,0 +1,8 @@
+{
+  "prefixes": ["SNAP", "GTK_", "GDK_", "GIO_", "GSETTINGS_"],
+  "loaderKeys": ["LD_LIBRARY_PATH", "LD_PRELOAD", "LD_AUDIT", "LOCPATH", "FONTCONFIG_PATH", "FONTCONFIG_FILE", "GI_TYPELIB_PATH", "GJS_PATH", "GCONV_PATH", "PYTHONHOME", "PYTHONPATH"],
+  "xdgDefaults": {
+    "XDG_DATA_DIRS": "/usr/local/share:/usr/share:/var/lib/snapd/desktop",
+    "XDG_CONFIG_DIRS": "/etc/xdg"
+  }
+}
