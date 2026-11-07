@@ -54,7 +54,9 @@ test("theme changes discard stale webview replies and request fresh resolved tok
   assert.equal(e.themeTokens, null);
   await e.message({ type: "theme", generation: e.themeGeneration, tokens: { background: "#abcdef" } });
   assert.equal(e.themeTokens.background, "#abcdef");
-  assert.equal(requests.at(-1).type, "requestTheme");
+  assert.equal(requests.filter(message => message.type === "requestTheme").length, 2);
+  assert.equal(requests.at(-1).type, "state");
+  assert.equal(requests.at(-1).state.resolvedColors.background, "#abcdef");
   e.dispose();
 });
 test("no-folder and disabled windows report real status", async () => {
@@ -94,6 +96,25 @@ test("configuration restart disposes the old reader and commands retain identifi
   const e = new m.Extension(m.context); await e.ready; await e.refresh();
   assert.equal(m.monitors.length, 2); assert.equal(m.monitors[0].disposed, true); e.dispose();
   m.activate(m.context); await Promise.resolve();
-  for (const name of ["testNotification", "importSound", "checkConfiguration"]) assert.equal(typeof m.commands[`codexNotifier.${name}`], "function");
+  for (const name of ["testNotification", "importSound", "checkConfiguration", "installDependencies"]) assert.equal(typeof m.commands[`codexNotifier.${name}`], "function");
   m.deactivate();
+});
+
+test("sidebar dependency action reaches setup and exposes setup state", async () => {
+  const m = load(), e = new m.Extension(m.context); await e.ready;
+  let installs = 0; e.setup.install = async () => { installs++; };
+  await e.message({ type: "installDependencies", packages: ["untrusted-package"] });
+  assert.equal(installs, 1); assert.equal(typeof e.state().dependencySetup.available, "boolean");
+  e.dispose();
+});
+
+test("sidebar color overrides persist and invalid colors never reach configuration", async () => {
+  const m = load(); const e = new m.Extension(m.context); await e.ready;
+  await e.message({ type: "updateSetting", key: "colors", value: { badgeBackground: "red; }" } });
+  assert.equal(m.writes.length, 0);
+  await e.message({ type: "updateSetting", key: "colors", value: { badgeBackground: "#123456", working: "#aa22ff" } });
+  assert.equal(m.writes.length, 1);
+  assert.equal(e.state().resolvedColors.badgeBackground, "#123456");
+  assert.equal(e.state().resolvedColors.working, "#aa22ff");
+  e.dispose();
 });

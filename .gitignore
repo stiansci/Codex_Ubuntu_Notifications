@@ -18,7 +18,9 @@ pnpm-lock.yaml
 out/
 dist/
 coverage/
+.nyc_output/
 .vscode-test/
+*.tsbuildinfo
 
 # Python Bytecode & Environments
 __pycache__/
@@ -27,13 +29,54 @@ __pycache__/
 .venv/
 venv/
 env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Local configuration and credentials
+/.private/
+/AGENTS.md
+/design/
+/assets/amber.svg
+/assets/ember.svg
+/assets/signal-bell.json
+/scripts/generate-icon-variants.py
+/scripts/generate-refined-icons.py
+/scripts/generate-color-proposals.py
+/scripts/generate-ember-refinement.py
+.env
+.env.*
+!.env.example
+!.env.*.example
+/.agents/
+/.codex/
+/.aws/
+/.ssh/
+/.azure/
+/.config/
+.npmrc
+.pypirc
+auth.json
+credentials.json
+service-account*.json
+*.pem
+*.key
+*.p12
+*.pfx
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+*.jsonl
+
+# Runtime logs
+*.log
 
 # Editor & IDE Directories
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+.vscode/
 .idea/
 *.swp
 *.swo

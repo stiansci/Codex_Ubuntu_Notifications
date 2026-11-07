@@ -7,7 +7,9 @@ const root = path.resolve(__dirname, "..");
 const { name, version } = require(path.join(root, "package.json"));
 const destination = path.join(root, "dist", `${name}-${version}.vsix`);
 fs.mkdirSync(path.dirname(destination), { recursive: true });
-const result = spawnSync("vsce", ["package", "--no-dependencies", "--out", destination], {
+// Local VSIX documentation uses its bundled screenshots, including before the
+// updated files have been pushed to the repository.
+const result = spawnSync("vsce", ["package", "--no-dependencies", "--no-rewrite-relative-links", "--out", destination], {
   cwd: root,
   stdio: "inherit",
   shell: process.platform === "win32"

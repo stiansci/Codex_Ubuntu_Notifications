@@ -13,6 +13,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -26,6 +28,7 @@ jobs:
         shell: bash -el {0}
         run: |
           npm ci
+          npm run public:check -- --release
           npm test
           npm run package
           npm run package:check

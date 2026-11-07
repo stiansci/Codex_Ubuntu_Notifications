@@ -10,7 +10,7 @@
     "type": "git",
     "url": "https://github.com/stiansci/Codex_Ubuntu_Notifications.git"
   },
-  "version": "1.1.12",
+  "version": "1.1.22",
   "description": "Desktop completion notifications, optional answer previews and audio for local Codex workspaces on Ubuntu, with dependency diagnostics.",
   "engines": {
     "vscode": "^1.90.0"
@@ -25,6 +25,18 @@
   "icon": "codex-notifier.png",
   "main": "./extension.js",
   "contributes": {
+    "taskDefinitions": [
+      {
+        "type": "codexNotifier.dependencies",
+        "required": [],
+        "properties": {
+          "runId": {
+            "type": "string",
+            "description": "Identifier for a dependency setup run."
+          }
+        }
+      }
+    ],
     "viewsContainers": {
       "activitybar": [
         {
@@ -55,6 +67,10 @@
       {
         "command": "codexNotifier.checkConfiguration",
         "title": "Codex Ubuntu Notifications: Check Configuration"
+      },
+      {
+        "command": "codexNotifier.installDependencies",
+        "title": "Codex Ubuntu Notifications: Install Missing Dependencies"
       }
     ],
     "configuration": {
@@ -78,14 +94,14 @@
         },
         "codexNotifier.desktopNotification": {
           "type": "boolean",
-          "default": true,
-          "description": "Show an Ubuntu desktop notification (via notify-send) when Codex finishes.",
+          "default": false,
+          "description": "Optionally show an Ubuntu desktop notification via libnotify when Codex finishes. Disabled by default.",
           "scope": "machine"
         },
         "codexNotifier.previewCard": {
           "type": "boolean",
           "default": true,
-          "description": "Show an optional answer preview using GTK3 on X11/XWayland. Falls back to a native notification when unavailable.",
+          "description": "Show a bottom-left answer preview using GTK3 on X11/XWayland. Enabled by default. Uses an in-editor fallback when unavailable.",
           "scope": "machine"
         },
         "codexNotifier.previewDuration": {
@@ -99,12 +115,12 @@
         "codexNotifier.sound": {
           "type": "boolean",
           "default": true,
-          "description": "Play completion audio via available PipeWire, PulseAudio or ALSA backends.",
+          "description": "Play a sound when Codex completes a turn.",
           "scope": "machine"
         },
         "codexNotifier.soundChoice": {
           "type": "string",
-          "default": "synth-1",
+          "default": "synth-2",
           "description": "Selected sound preset or imported custom sound filename.",
           "scope": "machine"
         },
@@ -127,6 +143,87 @@
           "default": "",
           "scope": "machine",
           "description": "Absolute path to the local Codex home. Empty uses CODEX_HOME, then ~/.codex. Only the documented database schema is supported."
+        },
+        "codexNotifier.topBarIndicator": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show a shared Codex icon and active-chat count in the Ubuntu top bar. Requires Ayatana AppIndicator3.",
+          "scope": "machine"
+        },
+        "codexNotifier.topBarFlash": {
+          "type": "boolean",
+          "default": true,
+          "description": "Flash the top-bar icon in its working color while chats are active. Disable for a static icon.",
+          "scope": "machine"
+        },
+        "codexNotifier.colors": {
+          "type": "object",
+          "default": {},
+          "scope": "machine",
+          "additionalProperties": false,
+          "description": "Custom colors for the top-bar icons and bottom-left notification. Unset colors follow the defaults or VS Code theme. Use the sidebar pickers or #RRGGBB values.",
+          "properties": {
+            "working": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$",
+              "description": "Working top-bar icon"
+            },
+            "finished": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$",
+              "description": "Finished top-bar icon"
+            },
+            "background": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$",
+              "description": "Notification background"
+            },
+            "foreground": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$",
+              "description": "Project text"
+            },
+            "inset": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$",
+              "description": "Answer background"
+            },
+            "insetForeground": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$",
+              "description": "Answer text"
+            },
+            "badgeBackground": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$",
+              "description": "Codex badge background"
+            },
+            "badgeText": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$",
+              "description": "Codex badge text"
+            },
+            "button": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$",
+              "description": "VS Code button background"
+            },
+            "buttonText": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$",
+              "description": "VS Code button text"
+            },
+            "muted": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$",
+              "description": "Secondary notification text"
+            },
+            "border": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$",
+              "description": "Notification border"
+            }
+          }
         }
       }
     }
@@ -152,7 +249,8 @@
     "test": "node scripts/run-tests.js && python3 -m unittest discover -s test -p \"test_*.py\"",
     "package": "node scripts/package.js",
     "package:check": "python3 scripts/check-package.py",
-    "assets:icons": "python3 scripts/generate-assets.py"
+    "assets:icons": "python3 scripts/generate-assets.py",
+    "public:check": "python3 scripts/check-public.py"
   },
   "devDependencies": {
     "@vscode/vsce": "4.1.0"

@@ -5,7 +5,7 @@ imports.gi.versions.Gdk = "3.0";
 imports.gi.versions.GdkPixbuf = "2.0";
 imports.gi.versions.Pango = "1.0";
 
-const { Gtk, Gdk, GdkPixbuf, Pango, GLib } = imports.gi;
+const { Gtk, Gdk, GdkPixbuf, Pango, GLib, Gio } = imports.gi;
 
 // Force X11 backend so window.move(x, y) can position at bottom-left on Wayland/XWayland
 GLib.setenv("GDK_BACKEND", "x11", true);
@@ -17,16 +17,9 @@ const mon = disp.get_primary_monitor() || disp.get_monitor(0);
 const workarea = mon.get_workarea();
 const maxHeight = Math.max(1, Math.floor(workarea.height / 3));
 
-function parsePayload() {
-  try {
-    if (ARGV.length > 0 && ARGV[0]) {
-      return JSON.parse(ARGV[0]);
-    }
-  } catch (e) {}
-  return {};
-}
-
-const payload = parsePayload();
+imports.searchPath.unshift(GLib.build_filenamev([GLib.path_get_dirname(imports.system.programPath), 'lib']));
+if (ARGV[0] !== "--stdin") imports.system.exit(1);
+const payload = imports.payload.readStdinPayload();
 const workspaceLabel = payload.workspaceLabel || "Workspace";
 const workspacePath = payload.workspacePath || "";
 const turnTitle = payload.title || "Turn completed";
@@ -88,6 +81,12 @@ const css = `
     font-weight: 400;
     font-size: 12.5px;
   }
+  .codex-badge {
+    background-color: #e2f5ea;
+    border-radius: 99px;
+    padding: 3px 8px;
+  }
+  .codex-badge .header-sub { color: #0d6847; }
   .close-btn {
     background: transparent;
     border: none;
@@ -177,14 +176,22 @@ const projLabel = new Gtk.Label({
 projLabel.get_style_context().add_class("header-project");
 projLabel.set_ellipsize(Pango.EllipsizeMode.END);
 projLabel.set_max_width_chars(30);
+projLabel.set_valign(Gtk.Align.CENTER);
+projLabel.set_yalign(0.5);
 
 const subLabel = new Gtk.Label({
   label: "Codex"
 });
 subLabel.get_style_context().add_class("header-sub");
+subLabel.set_valign(Gtk.Align.CENTER);
+subLabel.set_yalign(0.5);
+const codexBadge = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL });
+codexBadge.get_style_context().add_class("codex-badge");
+codexBadge.set_valign(Gtk.Align.CENTER);
+codexBadge.pack_start(subLabel, false, false, 0);
 
 titleBox.pack_start(projLabel, false, false, 0);
-titleBox.pack_start(subLabel, false, false, 0);
+titleBox.pack_start(codexBadge, false, false, 0);
 headerRow.pack_start(titleBox, true, true, 0);
 
 const closeBtn = new Gtk.Button({
@@ -242,6 +249,41 @@ const actionBtn = new Gtk.Button({
 actionBtn.get_style_context().add_class("action-pill");
 actionBtn.set_valign(Gtk.Align.CENTER);
 footerRow.pack_end(actionBtn, false, false, 0);
+
+// PDF actions use the desktop URI handler and never construct a shell command.
+const pdfs = Array.isArray(payload.pdfs) ? payload.pdfs.filter(pdf =>
+  pdf && typeof pdf.uri === "string" && /^(file:\/\/\/|https?:\/\/)/i.test(pdf.uri)) : [];
+if (pdfs.length) {
+  const pdfBtn = new Gtk.Button({ label: pdfs.length > 1 ? "Open PDF ▾" : "Open PDF" });
+  pdfBtn.get_style_context().add_class("action-pill");
+  pdfBtn.set_valign(Gtk.Align.CENTER);
+  pdfBtn.set_tooltip_text(pdfs.map(pdf => pdf.name || pdf.uri).join("\n"));
+  footerRow.pack_end(pdfBtn, false, false, 0);
+  function openPdf(pdf) {
+    pdfBtn.set_sensitive(false);
+    Gio.AppInfo.launch_default_for_uri_async(pdf.uri, null, null, (_source, result) => {
+      try {
+        Gio.AppInfo.launch_default_for_uri_finish(result);
+        startCloseAnimation();
+      } catch (e) {
+        pdfBtn.set_sensitive(true);
+        footerMeta.set_text("Unable to open PDF");
+        pdfBtn.set_tooltip_text(e.message);
+      }
+    });
+  }
+  if (pdfs.length === 1) pdfBtn.connect("clicked", () => openPdf(pdfs[0]));
+  else {
+    const menu = new Gtk.Menu();
+    for (const pdf of pdfs) {
+      const item = new Gtk.MenuItem({ label: pdf.name || "PDF" });
+      item.connect("activate", () => openPdf(pdf));
+      menu.append(item);
+    }
+    menu.show_all();
+    pdfBtn.connect("clicked", () => menu.popup_at_widget(pdfBtn, Gdk.Gravity.NORTH_WEST, Gdk.Gravity.SOUTH_WEST, null));
+  }
+}
 
 card.pack_start(footerRow, false, false, 0);
 outer.pack_start(card, false, false, 0);
@@ -362,21 +404,29 @@ closeBtn.connect("clicked", () => {
 });
 
 actionBtn.connect("clicked", () => {
+  function failed() {
+    actionBtn.set_sensitive(true);
+    actionBtn.set_label("Retry VS Code ↗");
+    footerMeta.set_text("Unable to open VS Code");
+  }
   try {
-    if (!codeBin || !GLib.path_is_absolute(codeBin)) return;
-    if (workspacePath) {
-      GLib.spawn_async(
-        null,
-        [codeBin, "--reuse-window", "--", workspacePath],
-        null,
-        GLib.SpawnFlags.SEARCH_PATH,
-        null
-      );
-    } else {
-      GLib.spawn_async(null, [codeBin, "--reuse-window"], null, GLib.SpawnFlags.DEFAULT, null);
+    if (!codeBin || !GLib.path_is_absolute(codeBin)) {
+      footerMeta.set_text("VS Code launcher unavailable");
+      return;
     }
-  } catch (e) { log("Unable to open VS Code"); }
-  startCloseAnimation();
+    const args = [codeBin, "--reuse-window"];
+    if (workspacePath) args.push("--", workspacePath);
+    const launcher = new Gio.SubprocessLauncher({ flags: Gio.SubprocessFlags.NONE });
+    launcher.unsetenv("ELECTRON_RUN_AS_NODE");
+    const child = launcher.spawnv(args);
+    actionBtn.set_sensitive(false);
+    child.wait_check_async(null, (process, result) => {
+      try {
+        process.wait_check_finish(result);
+        startCloseAnimation();
+      } catch (e) { log("Unable to open VS Code: " + e.message); failed(); }
+    });
+  } catch (e) { log("Unable to open VS Code: " + e.message); failed(); }
 });
 
 GLib.timeout_add(GLib.PRIORITY_DEFAULT, durationSec * 1000, () => {
@@ -384,4 +434,16 @@ GLib.timeout_add(GLib.PRIORITY_DEFAULT, durationSec * 1000, () => {
   return GLib.SOURCE_REMOVE;
 });
 
+// Developer-only screenshot command; normal notification launches pass only
+// the payload. Capture this widget itself so no desktop or chat is included.
+if (ARGV[1] === "--screenshot" && ARGV[2] && GLib.path_is_absolute(ARGV[2])) {
+  GLib.timeout_add(GLib.PRIORITY_DEFAULT, 900, () => {
+    try {
+      const pixbuf = Gdk.pixbuf_get_from_window(win.get_window(), 0, 0, win.get_allocated_width(), win.get_allocated_height());
+      pixbuf.savev(ARGV[2], "png", [], []);
+    } catch (e) { logError(e); imports.system.exit(1); }
+    Gtk.main_quit();
+    return GLib.SOURCE_REMOVE;
+  });
+}
 Gtk.main();

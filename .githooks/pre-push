@@ -1,0 +1,14 @@
+#!/bin/sh
+set -eu
+while read -r local_ref local_oid remote_ref remote_oid; do
+    case "$local_ref" in
+        refs/heads/*|refs/tags/*|HEAD|\(delete\)) ;;
+        *) echo "Push blocked: private/local refs must not be published." >&2; exit 1 ;;
+    esac
+    case "$remote_ref" in
+        refs/heads/*|refs/tags/*) ;;
+        *) echo "Push blocked: only public branches and tags may be published." >&2; exit 1 ;;
+    esac
+done
+root=$(git rev-parse --show-toplevel)
+python3 "$root/scripts/check-public.py" --release

@@ -23,3 +23,19 @@ test("table conversion leaves fenced code alone and escapes cell content", () =>
   assert.match(result, /• A: <script>  ·  B: x/);
   assert.match(context.render(result), /&lt;script&gt;/);
 });
+
+
+test("links display labels before fitting, including files and balanced URLs", () => {
+  const input = "See [app.py](/tmp/My Project/app.py:12), [docs](https://example.com/a_(b)?x=1&y=2) and [`code`](</tmp/code>).";
+  assert.equal(context.previewText(input), "See app.py, docs and `code`.");
+  assert.equal(context.render(input), "See app.py, docs and <tt>code</tt>.");
+  const preview = context.previewText("Read [a long descriptive label](https://example.com/long/path)");
+  assert.equal(context.render(preview.slice(0, 18) + "…"), "Read a long descri…");
+});
+
+test("link normalization preserves code and escapes labels", () => {
+  assert.equal(context.render("[<unsafe>](https://example.com)"), "&lt;unsafe&gt;");
+  const input = "`[literal](/tmp/file)`\n```\n[code](/tmp/code)\n```";
+  assert.equal(context.previewText(input), input);
+  assert.equal(context.render("[unfinished](https://example.com"), "[unfinished](https://example.com");
+});

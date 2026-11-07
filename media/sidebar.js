@@ -38,6 +38,8 @@
     themeObserver.observe(document.body, { attributes: true, attributeFilter: ['style', 'class', 'data-vscode-theme-id'] });
 
     const enabledToggle = document.getElementById("enabledToggle");
+    const topBarToggle = document.getElementById("topBarToggle");
+    const topBarFlashToggle = document.getElementById("topBarFlashToggle");
     const statusBadge = document.getElementById("statusBadge");
     const modeSelect = document.getElementById("modeSelect");
     const desktopToggle = document.getElementById("desktopToggle");
@@ -54,9 +56,84 @@
     const importBtn = document.getElementById("importBtn");
     const customList = document.getElementById("customList");
     const testBtn = document.getElementById("testBtn");
+    const colorControls = new Map();
+    const colorGroups = [
+      ["Top bar", [["working", "Working icon"], ["finished", "Finished icon"]]],
+      ["Bottom-left notification", [["background", "Card background"], ["foreground", "Project text"],
+        ["inset", "Answer background"], ["insetForeground", "Answer text"],
+        ["badgeBackground", "Codex badge"], ["badgeText", "Codex badge text"],
+        ["button", "VS Code button"], ["buttonText", "Button text"],
+        ["muted", "Secondary text"], ["border", "Card border"]]]
+    ];
+    function saveColor(key, value) {
+      const colors = { ...state.colors };
+      if (value) colors[key] = value;
+      else delete colors[key];
+      state.colors = colors;
+      vscode.postMessage({ type: "updateSetting", key: "colors", value: colors });
+    }
+    function normalizeHex(value) {
+      const hex = value.trim().replace(/^#/, "");
+      if (/^[\da-f]{3}$/i.test(hex)) return "#" + [...hex.toLowerCase()].map(c => c + c).join("");
+      return /^[\da-f]{6}$/i.test(hex) ? "#" + hex.toLowerCase() : null;
+    }
+    for (const [group, fields] of colorGroups) {
+      const heading = document.createElement("div");
+      heading.className = "color-group"; heading.textContent = group;
+      document.getElementById("colorFields").appendChild(heading);
+      for (const [key, label] of fields) {
+        const row = document.createElement("div"); row.className = "color-row";
+        const name = document.createElement("label"); name.textContent = label; name.htmlFor = "hex-" + key;
+        const controls = document.createElement("div"); controls.className = "color-controls";
+        const picker = document.createElement("input"); picker.type = "color"; picker.setAttribute("aria-label", label + " picker");
+        const hex = document.createElement("input"); hex.type = "text"; hex.className = "color-hex";
+        hex.id = "hex-" + key; hex.maxLength = 7; hex.placeholder = "Default"; hex.spellcheck = false;
+        hex.setAttribute("aria-label", label + " hex value");
+        const reset = document.createElement("button"); reset.className = "icon-btn";
+        reset.textContent = "↺"; reset.title = "Reset " + label.toLowerCase(); reset.setAttribute("aria-label", reset.title);
+        picker.oninput = () => { hex.value = picker.value; hex.setCustomValidity(""); };
+        picker.onchange = () => saveColor(key, picker.value);
+        hex.oninput = () => {
+          const value = normalizeHex(hex.value);
+          hex.setCustomValidity(hex.value.trim() && !value ? "Enter a hex color, for example #3b82f6." : "");
+          if (value) picker.value = value;
+        };
+        hex.onchange = () => {
+          const value = normalizeHex(hex.value);
+          if (hex.value.trim() && !value) { hex.reportValidity(); return; }
+          hex.value = value || "";
+          saveColor(key, value);
+        };
+        hex.onkeydown = event => { if (event.key === "Enter") { event.preventDefault(); hex.onchange(); } };
+        reset.onclick = () => { hex.value = ""; hex.setCustomValidity(""); saveColor(key, null); };
+        controls.appendChild(picker); controls.appendChild(hex); controls.appendChild(reset);
+        row.appendChild(name); row.appendChild(controls);
+        document.getElementById("colorFields").appendChild(row);
+        colorControls.set(key, { picker, hex });
+      }
+    }
+    document.getElementById("resetColorsBtn").onclick = () => {
+      state.colors = {};
+      for (const { hex } of colorControls.values()) { hex.value = ""; hex.setCustomValidity(""); }
+      vscode.postMessage({ type: "updateSetting", key: "colors", value: {} });
+    };
 
     function render() {
+      const setup = state.dependencySetup;
+      document.getElementById("setupCard").hidden = !setup?.available || (!setup.installing && !setup.packages.length && !setup.audioChoiceRequired);
+      const installButton = document.getElementById("installDependenciesBtn");
+      installButton.disabled = !!setup?.installing;
+      installButton.textContent = setup?.installing ? "Installing Dependencies..." : "Install Missing Dependencies";
+      document.getElementById("setupDetails").textContent = setup?.installing ? "Follow the prompts in the setup terminal. Dependencies will be checked again when it finishes." :
+        [setup?.packages.length ? "Packages: " + setup.packages.join(", ") + "." : "",
+          setup?.audioChoiceRequired ? "Choose your existing audio system during setup." : ""].filter(Boolean).join(" ");
+      for (const [key, { picker, hex }] of colorControls) {
+        if (document.activeElement !== hex) hex.value = state.colors?.[key] || "";
+        if (document.activeElement !== picker && document.activeElement !== hex) picker.value = state.resolvedColors?.[key] || "#000000";
+      }
       enabledToggle.checked = !!state.enabled;
+      topBarToggle.checked = state.topBarIndicator !== false;
+      topBarFlashToggle.checked = state.topBarFlash === true;
       statusBadge.textContent = state.diagnostics?.status || "Checking";
       document.getElementById("diagnostics").textContent = (state.diagnostics?.details || []).join("\n");
       statusBadge.className = "badge " + (state.diagnostics?.status === "Ready" ? "on" : "off");
@@ -151,6 +228,8 @@
       }
     }
 
+    topBarToggle.onchange = () => vscode.postMessage({ type: "updateSetting", key: "topBarIndicator", value: topBarToggle.checked });
+    topBarFlashToggle.onchange = () => vscode.postMessage({ type: "updateSetting", key: "topBarFlash", value: topBarFlashToggle.checked });
     enabledToggle.onchange = () => {
       vscode.postMessage({ type: "updateSetting", key: "enabled", value: enabledToggle.checked });
     };
@@ -221,4 +300,5 @@
     });
 
     document.getElementById("checkBtn").onclick = () => vscode.postMessage({ type: "checkConfiguration" });
+    document.getElementById("installDependenciesBtn").onclick = () => vscode.postMessage({ type: "installDependencies" });
     vscode.postMessage({ type: "requestState" });

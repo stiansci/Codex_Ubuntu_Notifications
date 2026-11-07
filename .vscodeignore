@@ -5,9 +5,18 @@
 !lib/extension.js
 !lib/monitor.js
 !lib/platform.js
+!lib/payload.js
+!lib/native_notification.py
+!lib/dependencies.js
 !lib/theme.js
 !lib/notificationMarkdown.js
 !lib/worker.py
+!lib/activity.py
+!lib/indicator.js
+!lib/topbarArtwork.js
+!lib/topbarMenu.js
+!topbar-indicator.js
+!media/codex-*.svg
 !media/sidebar.js
 !media/sidebar.html
 !media/sidebar.css
@@ -23,5 +32,7 @@
 !LICENSE
 !ASSETS.md
 !TESTING.md
+!PUBLICATION.md
+!docs/screenshots/*.png
 **/__pycache__/**
 **/*.pyc
