@@ -27,6 +27,20 @@ def local_documentation(data):
             target = target.removeprefix(prefix)
         return f"{image}[{label}]({target})"
     return re.sub(r"(!?)\[([^\]\n]*)\]\(([^)\n]+)\)", restore, data.decode()).encode()
+
+
+def customer_readme(text, location):
+    """Reject known development/agent-note leaks in the customer-facing description."""
+    headings = r"(?im)^#{1,6}\s+(?:release preparation|repository layout|develop(?:er|ment)\b|agent instructions|policy di\b)"
+    assert not re.search(headings, text), f"Customer README contains a development/internal heading: {location}"
+    forbidden = ("Policy di styling", "La scheda bottom left", "Il font ricevuto", "Riferimento:",
+                 "AGENTS.md", "private/backups", "private/notes", "private/design", "extensionDevelopmentPath",
+                 "npm ci", "npm run", "thread_turns", "rollout_ordinal", "thread_history_1.sqlite")
+    for token in forbidden:
+        assert token.casefold() not in text.casefold(), f"Customer README contains internal/development content ({token}): {location}"
+
+
+customer_readme((root / "README.md").read_text(), "README.md")
 expected = {"package.json", "extension.js", "preview-overlay.js", "codex-notifier.png", "icon.svg",
             "README.md", "CHANGELOG.md", "LICENSE", "LICENSING.md", "VERSIONING.md", "ASSETS.md", "TESTING.md", "PUBLICATION.md"}
 expected.update({"lib/core.js", "lib/extension.js", "lib/monitor.js", "lib/platform.js", "lib/theme.js", "lib/worker.py",
@@ -54,6 +68,8 @@ with zipfile.ZipFile(vsix) as archive:
     for name in expected:
         packaged = archive.read(entries[name])
         source = (root / name).read_bytes()
+        if name == "README.md":
+            customer_readme(packaged.decode(), f"{vsix.name}/README.md")
         if marketplace and name in {"README.md", "CHANGELOG.md"}:
             if name == "README.md":
                 images = re.findall(r"!\[[^\]\n]*\]\(([^)\n]+)\)", packaged.decode())

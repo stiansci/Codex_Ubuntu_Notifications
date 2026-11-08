@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.27
+
+- Rewrite the public README as English-only customer documentation, moving build, release and implementation material into separate contributor documentation and private reference notes.
+- Remove the Italian styling policy and add package checks that reject agent/developer-note leakage in the customer description.
+
 ## 1.1.26
 
 - Rewrite the introduction around answer previews and chat activity, remove icon-design and rendering details, and simplify screenshot captions and settings descriptions.
