@@ -38,6 +38,8 @@ It stops on failed checks, a moving source commit or an existing tag pointing el
 
 After the GitHub repository is created, push the public branch and only the intended version tag. In GitHub Actions, select **Prepare draft GitHub release**, choose **Run workflow**, and enter the existing tag. The workflow rebuilds that tag, verifies that its manifest version matches, and creates a **draft prerelease** with the VSIX files and checksums. It requires the versioning/release scripts to exist in that tagged snapshot, so earlier development tags are source-history markers only.
 
+The pre-push hook checks the complete README history behind each selected branch or tag. A corrected latest README does not make earlier snapshots safe to publish. Push only the intended refs; do not use `--tags`, `--all` or `--mirror` to publish local archives.
+
 Review the draft and desktop checklist before publishing it. A second workflow run for an existing release stops rather than replacing published files. Marketplace upload remains a separate deliberate action using the `-marketplace.vsix`; the tag and linked screenshots must be public first.
 
 GitHub documents the [relationship between releases and tags](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases). Nothing here sends private files, backups, Codex recovery refs or Marketplace credentials to GitHub.

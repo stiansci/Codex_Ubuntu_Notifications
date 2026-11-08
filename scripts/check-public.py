@@ -48,8 +48,27 @@ def ignored(paths, root):
     return [path.decode() for path in result.stdout.split(b"\0") if path]
 
 
-def check(root=ROOT, release=False):
+def readme_history(refs, root=ROOT):
+    """Reject documentation leaks in the exact histories about to be published."""
     findings = []
+    seen = set()
+    headings = re.compile(rb"(?im)^#{1,6}\s+(?:release preparation|repository layout|develop(?:er|ment)\b|agent instructions|policy di\b)")
+    forbidden = (b"policy di styling", b"la scheda bottom left", b"il font ricevuto", b"riferimento:",
+                 b"agents.md", b"private/backups", b"private/notes", b"private/design", b"extensiondevelopmentpath",
+                 b"npm ci", b"npm run", b"thread_turns", b"rollout_ordinal", b"thread_history_1.sqlite")
+    for commit in git("rev-list", *refs, root=root).splitlines():
+        entry = git("ls-tree", commit.decode(), "--", "README.md", root=root).split()
+        if not entry or entry[1] != b"blob" or entry[2] in seen:
+            continue
+        seen.add(entry[2])
+        data = git("cat-file", "blob", entry[2].decode(), root=root)
+        if headings.search(data) or any(token in data.lower() for token in forbidden):
+            findings.append(f"history {commit[:8].decode()}/README.md: customer description contains development/internal notes")
+    return findings
+
+
+def check(root=ROOT, release=False):
+    findings = readme_history(["HEAD"], root=root)
     tracked = git("ls-files", "-z", root=root).split(b"\0")
     for path in ignored([path for path in tracked if path], root):
         findings.append(f"tracked private/ignored path: {path}")
@@ -81,6 +100,18 @@ def check(root=ROOT, release=False):
 
 
 def main():
+    if sys.argv[1:2] == ["--readme-history"]:
+        if not sys.argv[2:]:
+            print("Specify at least one commit to check.")
+            return 1
+        findings = readme_history(sys.argv[2:])
+        for finding in findings:
+            print(finding)
+        if findings:
+            print("Push blocked: this history would restore removed notes. Use the cleaned public branch and current release tag.")
+            return 1
+        print("Customer README history check passed.")
+        return 0
     findings, files, commits, blobs = check(release="--release" in sys.argv[1:])
     for finding in findings:
         print(finding)

@@ -53,6 +53,28 @@ class PublicationTests(unittest.TestCase):
         (self.root / "helper.js").write_text("// New required helper\n")
         self.assertTrue(any("untracked public" in item for item in public_check.check(self.root, release=True)[0]))
 
+    def test_old_tag_is_rejected_even_after_current_readme_is_cleaned(self):
+        # Use a synthetic development heading rather than copying private policy text.
+        (self.root / "README.md").write_text("# Example\n\n## Agent instructions\nLocal implementation notes.\n")
+        self.git("add", "README.md")
+        self.git("commit", "-qm", "Synthetic documentation fixture")
+        self.git("tag", "old-draft")
+        self.git("checkout", "--orphan", "clean-public")
+        (self.root / "README.md").write_text("# Example\n\nChoose your notification settings.\n")
+        self.git("add", "README.md")
+        self.git("commit", "-qm", "Clean public source")
+        self.assertEqual(public_check.readme_history(["HEAD"], root=self.root), [])
+        self.assertTrue(public_check.readme_history(["old-draft"], root=self.root))
+
+    def test_removing_notes_in_latest_commit_does_not_clean_ancestor(self):
+        (self.root / "README.md").write_text("# Example\n\n## Development\nBuild details.\n")
+        self.git("add", "README.md")
+        self.git("commit", "-qm", "Synthetic development fixture")
+        (self.root / "README.md").write_text("# Example\n\nChoose your alerts.\n")
+        self.git("add", "README.md")
+        self.git("commit", "-qm", "Clean description")
+        self.assertTrue(public_check.readme_history(["HEAD"], root=self.root))
+
 
 if __name__ == "__main__":
     unittest.main()

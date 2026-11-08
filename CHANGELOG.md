@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.28
+
+- Check customer documentation throughout the exact branch and tag histories selected for publication.
+- Keep Marketplace documentation links tied to the current verified release.
+
 ## 1.1.27
 
 - Rewrite the public README as English-only customer documentation, moving build, release and implementation material into separate contributor documentation and private reference notes.
