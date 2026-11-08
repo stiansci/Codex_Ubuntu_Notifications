@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.24
+
+- Replace the bell with an original miniature agent-reply notification card for the Marketplace icon, popup and sidebar header.
+- Use a simplified reply bubble with answer lines for the Activity Bar and top-bar status colors.
+- Refresh the synthetic notification and top-bar screenshots to match the new artwork.
+- Add a separately checked Marketplace VSIX with HTTPS documentation images pinned to the release tag; keep local VSIX documentation usable offline.
+- Record the user-reported successful 1.1.23 top-bar smoke test without implying that the full desktop release checklist has passed.
+
 ## 1.1.23
 
 - Clean inherited Snap library, GTK/GIO module and typelib paths even when terminal sessions no longer contain SNAP or SNAP_NAME.

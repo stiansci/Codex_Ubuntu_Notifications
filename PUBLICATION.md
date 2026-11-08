@@ -7,6 +7,8 @@ npm run public:check -- --release
 npm test
 npm run package
 npm run package:check
+npm run package:marketplace
+npm run package:check:marketplace
 ```
 
 `public:check` inspects current publishable files, tracked exclusions and history reachable from HEAD, branches, tags and remote-tracking branches. It reports possible credential formats, personal home paths, private files and non-noreply commit email addresses without printing matched values. `--release` also rejects uncommitted changes and untracked public files. This is a pattern-based check, not proof that no possible secret exists. CI fetches full history to apply the same check.
@@ -28,6 +30,10 @@ git config --local user.email stiansci@users.noreply.github.com
 
 The public tree retains extension source, original artwork, tests, dependency lockfile, CI, license and user documentation. `.vscodeignore` separately limits the installed VSIX to runtime files and selected documentation. `dist/` is local output; release assets should be selected explicitly.
 
-Version 1.1.23 is a release candidate until the human desktop checklist in [TESTING.md](TESTING.md) is completed for the configurations advertised as tested. Automated fixtures and widget screenshots do not certify actual desktop integration. Record real results and retain unverified entries honestly.
+Version 1.1.24 is a release candidate until the remaining human desktop checklist in [TESTING.md](TESTING.md) is completed for the configurations advertised as tested. The user reported a passing 1.1.23 top-bar smoke test. That bounded test and synthetic widget screenshots do not certify the full desktop integration matrix. Record real results and retain unverified entries honestly.
+
+Build artifacts have separate destinations: the standard VSIX keeps bundled screenshots for local/offline installation and GitHub release downloads; the `-marketplace.vsix` rewrites README and changelog links to HTTPS URLs pinned to the `v1.1.24` GitHub tag. The package checker verifies exact runtime bytes, documentation transformations and metadata for both. Make the declared repository and release tag public before Marketplace upload, then verify the linked PNG images resolve. The declared repository returned 404 during the 2026-11-08 readiness review, and no Git remote was configured, so public repository availability remains a release gate. The user confirmed ownership of the `KaroTechnica` Marketplace publisher on 2026-11-08; the manifest uses that publisher ID. Publishing credentials or a trusted-publishing connection have not been exercised by these local checks.
+
+Marketplace publisher setup and publishing authentication follow the official [VS Code publishing guide](https://code.visualstudio.com/api/working-with-extensions/publishing-extension). Building either VSIX does not verify account ownership, upload the artifact or create the GitHub release.
 
 GitHub push and Marketplace publication are separate actions. Confirm the destination repository and publisher ownership before either action. No upload or publication is performed by the release scripts.

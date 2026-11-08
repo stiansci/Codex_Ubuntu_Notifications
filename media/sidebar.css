@@ -227,7 +227,7 @@
 .color-hex { width: 85px; padding: 5px; color: var(--vscode-input-foreground); background: var(--vscode-input-background); border: 1px solid var(--vscode-input-border, var(--border)); border-radius: 4px; font-family: var(--vscode-editor-font-family, monospace); font-size: 12px; }
 .color-hex:invalid { border-color: var(--vscode-inputValidation-errorBorder, #f14c4c); }
 
-/* Refined Ember branding uses the full approved light-background tile. */
+/* The brand tile previews an agent reply notification. */
 .sidebar-brand {
   width: 42px;
   height: 42px;
@@ -239,5 +239,6 @@
   .sidebar-brand { background: Canvas; color: CanvasText; outline: 1px solid CanvasText; }
   .sidebar-brand rect { fill: Canvas; stroke: CanvasText; }
   .sidebar-brand path[stroke] { stroke: CanvasText; }
-  .sidebar-brand path:last-child { fill: CanvasText; }
+  .sidebar-brand text, .sidebar-brand circle { fill: CanvasText; }
+  .sidebar-brand path[fill="none"] { fill: none; }
 }

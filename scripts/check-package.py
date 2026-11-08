@@ -1,12 +1,32 @@
 """Check the actual VSIX allowlist and metadata without installing the extension."""
 from pathlib import Path
 import json
+import re
+import sys
 import zipfile
 import xml.etree.ElementTree as ET
 
 root = Path(__file__).resolve().parent.parent
 package = json.loads((root / "package.json").read_text())
-vsix = root / "dist" / f'{package["name"]}-{package["version"]}.vsix'
+marketplace = "--marketplace" in sys.argv[1:]
+suffix = "-marketplace" if marketplace else ""
+vsix = root / "dist" / f'{package["name"]}-{package["version"]}{suffix}.vsix'
+repository = package["repository"]["url"].removesuffix(".git").rstrip("/")
+assert repository.startswith("https://github.com/"), "Marketplace link checks require the declared HTTPS GitHub repository."
+release = "v" + package["version"]
+content_base = f"{repository}/blob/{release}/"
+image_base = repository.replace("https://github.com/", "https://raw.githubusercontent.com/", 1) + f"/{release}/"
+
+
+def local_documentation(data):
+    """Undo only the permitted release-tag URL rewrite, retaining exact source checks."""
+    def restore(match):
+        image, label, target = match.groups()
+        prefix = image_base if image else content_base
+        if target.startswith(prefix):
+            target = target.removeprefix(prefix)
+        return f"{image}[{label}]({target})"
+    return re.sub(r"(!?)\[([^\]\n]*)\]\(([^)\n]+)\)", restore, data.decode()).encode()
 expected = {"package.json", "extension.js", "preview-overlay.js", "codex-notifier.png", "icon.svg",
             "README.md", "CHANGELOG.md", "LICENSE", "ASSETS.md", "TESTING.md", "PUBLICATION.md"}
 expected.update({"lib/core.js", "lib/extension.js", "lib/monitor.js", "lib/platform.js", "lib/theme.js", "lib/worker.py",
@@ -32,9 +52,16 @@ with zipfile.ZipFile(vsix) as archive:
     for name in expected:
         packaged = archive.read(entries[name])
         source = (root / name).read_bytes()
+        if marketplace and name in {"README.md", "CHANGELOG.md"}:
+            if name == "README.md":
+                images = re.findall(r"!\[[^\]\n]*\]\(([^)\n]+)\)", packaged.decode())
+                assert images and all(url.startswith(image_base) and url.endswith(".png") for url in images), \
+                    "Marketplace images must use HTTPS PNG URLs pinned to this release tag."
+            packaged = local_documentation(packaged)
         assert packaged == source, f"Stale file: {name}"
     manifest = ET.fromstring(archive.read("extension.vsixmanifest"))
     identity = next(e for e in manifest.iter() if e.tag.endswith("}Identity"))
     assert identity.attrib["Version"] == package["version"]
     assert identity.attrib["Publisher"] == package["publisher"]
-print(f"Verified {vsix.name}: exact runtime allowlist, current sources and matching metadata.")
+print(f"Verified {vsix.name}: exact runtime allowlist, current sources, matching metadata" +
+      (" and release-tag HTTPS documentation links." if marketplace else "."))

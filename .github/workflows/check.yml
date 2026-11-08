@@ -32,3 +32,5 @@ jobs:
           npm test
           npm run package
           npm run package:check
+          npm run package:marketplace
+          npm run package:check:marketplace

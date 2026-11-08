@@ -14,11 +14,11 @@ PDF links in an answer add an **Open PDF** button to the bottom-left preview. Lo
 
 Bottom-left answer notification, captured from the running GTK popup with sample content:
 
-![Bottom-left answer notification with a bell-and-check icon and VS Code button](docs/screenshots/bottom-left-notification.png)
+![Bottom-left answer notification with a reply-preview icon and VS Code button](docs/screenshots/bottom-left-notification.png)
 
 | Working: flashing blue | Finished: steady green |
 | --- | --- |
-| ![Two active chats, separator, and blue bell](docs/screenshots/topbar-blue.png) | ![Zero active chats, separator, and green bell](docs/screenshots/topbar-green.png) |
+| ![Two active chats, separator, and blue reply bubble](docs/screenshots/topbar-blue.png) | ![Zero active chats, separator, and green reply bubble](docs/screenshots/topbar-green.png) |
 
 The screenshots use sample content and activity counts.
 
@@ -82,7 +82,7 @@ The **Colors** section provides a color picker and editable hex field for each t
 | --- | --- | --- |
 | `enabled` | `true` | Start or stop automatic monitoring. |
 | `mode` | `always` | `always` or `unfocused`. |
-| `topBarIndicator` | `true` | Show one shared top-bar count, separator and bell icon. |
+| `topBarIndicator` | `true` | Show one shared top-bar count, separator and reply icon. |
 | `topBarFlash` | `true` | Flash blue while working; disable for static blue. |
 | `colors` | `{}` | Optional hex color overrides, editable using the sidebar color pickers. |
 | `desktopNotification` | `false` | Optionally show a native Ubuntu desktop notification. |
@@ -115,5 +115,5 @@ Imported audio is stored locally. Cross-window claims contain hashed identifiers
 
 ## License
 
-Code and original bell-and-check artwork use the [MIT license subject to Commons Clause v1.0](LICENSE). No OpenAI logo is included in the current artwork. See [ASSETS.md](ASSETS.md) for provenance and regeneration instructions.
+Code and original reply-preview artwork use the [MIT license subject to Commons Clause v1.0](LICENSE). No OpenAI logo is included in the current artwork. See [ASSETS.md](ASSETS.md) for provenance and regeneration instructions.
 

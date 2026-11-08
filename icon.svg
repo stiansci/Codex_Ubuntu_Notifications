@@ -1,4 +1,3 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="28 30 200 200"><path d="M128 42v13M68 116C68 94 77 79 97 67Q128 49 159 67C179 79 188 94 188 116V142Q188 163 201 180Q208 190 195 194Q128 209 61 194Q48 190 55 180Q68 163 68 142Z" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
-<path d="M115 218Q128 230 141 218" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" />
-<path d="M99 130l21 21 39-44" fill="none" stroke="currentColor" stroke-width="13" stroke-linecap="round" stroke-linejoin="round" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Agent reply">
+<path d="M5 2a4 4 0 0 0-4 4v10a4 4 0 0 0 4 4v3l5-3h9a4 4 0 0 0 4-4V6a4 4 0 0 0-4-4H5Zm0 2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9.4L7 19.4V18H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM6 7h12v2H6Zm0 4h9v2H6Z" fill="currentColor" stroke="none" fill-rule="evenodd" />
 </svg>

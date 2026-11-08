@@ -1,4 +1,4 @@
-# Release verification for 1.1.23
+# Release verification for 1.1.24
 
 Status: release candidate. Human desktop validation is pending; no supported desktop is certified by automated tests.
 
@@ -12,6 +12,8 @@ npm run public:check -- --release
 npm test
 npm run package
 npm run package:check
+npm run package:marketplace
+npm run package:check:marketplace
 ```
 
 Tests use temporary synthetic databases and mocked VS Code/desktop APIs. They do not read personal conversations, connect to a graphical session, install the extension, publish, or validate the GPU. CI runs on Ubuntu 22.04 and 24.04 with Python 3.10 and 3.12 and Node 22. Ubuntu 26.04 and ARM64 remain human validation targets rather than inferred CI coverage.
@@ -19,6 +21,10 @@ Tests use temporary synthetic databases and mocked VS Code/desktop APIs. They do
 Local automated evidence for 1.1.22, recorded 2026-11-07: 62 JavaScript tests and 20 Python tests pass in `aiml` with Node 26.6.0 and Python 3.10.20. Additional bounded checks exercised the actual GJS stdin reader with Unicode, invalid JSON and oversized input; real libnotify delivered a synthetic payload to a private D-Bus fixture. Documentation widgets were captured on a virtual display with synthetic content. These checks do not certify a real desktop/session combination.
 
 Version 1.1.23 passes 63 JavaScript tests and 23 Python tests. It adds regression coverage for stale Snap loader/module paths without SNAP markers, including matching JavaScript and Python cleanup results and system desktop-tool selection. Bounded system GTK startup probes also pass with three synthetic contaminated environments on a virtual display. The failed human run of 1.1.22 encountered a GJS shared-library error; it does not count as a passed desktop test.
+
+Recorded 2026-11-08: the user supplied a successful 1.1.23 desktop smoke-test log. It confirms green/0, blue/1, flashing, completion, singleton ownership, bootstrap handoff and native workspace-menu privacy. OS, desktop/session and VS Code package/version details were not supplied with that log, so the full matrix below remains unverified. The subsequent reply-artwork update needs visual confirmation after installation.
+
+On 2026-11-08 the user also confirmed ownership of the manifest's `KaroTechnica` Marketplace publisher ID. Public GitHub repository/tag availability and the remaining desktop checklist are still pending; a local package build does not validate publishing authentication.
 
 ## Human desktop run
 
@@ -41,7 +47,7 @@ In the development host:
 10. Install the generated VSIX explicitly in a separate VS Code profile and repeat steps 1 through 4:
 
 ```bash
-code --profile CodexNotifierReleaseTest --install-extension dist/codex-ubuntu-notifications-1.1.23.vsix
+code --profile CodexNotifierReleaseTest --install-extension dist/codex-ubuntu-notifications-1.1.24.vsix
 code --profile CodexNotifierReleaseTest --new-window .
 ```
 
@@ -67,6 +73,7 @@ A desktop/session combination not offered by the distribution is not applicable,
 - Manual matrix accurately records what was tested; limitations remain visible.
 - The GitHub repository link resolves and the publisher account owner confirms `KaroTechnica`.
 - Combined MIT + Commons Clause license, asset provenance, changelog and version agree.
+- The separate `-marketplace.vsix` passes its source and HTTPS-link checks. Its pinned public GitHub tag and screenshot URLs resolve before Marketplace upload.
 - Review the exact VSIX file list and commit diff, then authorize GitHub push and Marketplace publication separately.
 # Top-bar indicator checks
 
