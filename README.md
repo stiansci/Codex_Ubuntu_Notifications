@@ -1,10 +1,10 @@
 # Codex Ubuntu Notifications
 
-The Ubuntu top bar shows how many local VS Code chats are working across workspaces. It flashes blue while work is active and turns green at zero when tracked work finishes. Multiple VS Code windows share one count. Use **Flash While Working** for a steady display or **Ubuntu Top-Bar Icon** to hide it.
+Get a bottom-left answer preview and a chime when Codex finishes a reply in VS Code. The Ubuntu top bar shows how many chats are working across your workspaces. Blue means work is in progress; green means no tracked chats are active. You can disable flashing or hide the activity indicator in settings. Multiple VS Code windows share the same count.
 
-The indicator requires `gjs`, `gir1.2-ayatanaappindicator3-0.1` and Ubuntu AppIndicators. Its menu uses English action labels, with working chats grouped by workspace, for example **Open workspace: my_project (1 chat working)**. Selecting a workspace opens it in VS Code. Conversation titles are neither read nor shown by the indicator. Workspace names retain their original language. The **Open VS Code** action includes the current activity summary; the menu also has a **Flash while working** checkbox. Activity updates preserve existing menu items for keyboard navigation. Counts update about every two seconds. It reads local session lifecycle events without modifying Codex databases. Previous-boot sessions, archived chats, CLI chats and subagents are excluded. An unfinished session with no log updates for 15 minutes is uncertain: the label adds `?`, and the icon is gray when no confirmed work remains. Gray also means the activity reader is unavailable. Green means idle, including cancelled or failed turns; it does not assert that every task succeeded. The extension's configured Codex home defines the scope, and the shared indicator follows the first owning window's configuration.
+The indicator requires `gjs`, `gir1.2-ayatanaappindicator3-0.1` and Ubuntu AppIndicators. Its menu uses English action labels, with working chats grouped by workspace, for example **Open workspace: my_project (1 chat working)**. Selecting a workspace opens it in VS Code. Conversation titles are neither read nor shown by the indicator. Workspace names retain their original language. The **Open VS Code** action includes the current activity summary; the menu also has a **Flash while working** checkbox. Activity updates preserve existing menu items for keyboard navigation. Counts update about every two seconds. It reads local session lifecycle events without modifying Codex databases. Previous-boot sessions, archived chats, CLI chats and subagents are excluded. An unfinished session with no log updates for 15 minutes is uncertain: the label adds `?`, and the indicator is gray when no confirmed work remains. Gray also means the activity reader is unavailable. Green means idle, including cancelled or failed turns; it does not assert that every task succeeded. The extension's configured Codex home defines the scope, and the shared indicator follows the first owning window's configuration.
 
-Independent VS Code extension for completion alerts in local Codex workspaces on Ubuntu. By default it shows a bottom-left answer preview and plays a chime. Ubuntu desktop notifications can be enabled separately. A configuration panel reports missing dependencies and monitoring failures.
+Ubuntu desktop notifications can be enabled separately. The configuration panel helps you identify missing dependencies and monitoring issues.
 
 This is not an official OpenAI or Microsoft extension. It relies on a specific local Codex database schema, which can change independently of this project.
 
@@ -14,11 +14,11 @@ PDF links in an answer add an **Open PDF** button to the bottom-left preview. Lo
 
 Bottom-left answer notification, captured from the running GTK popup with sample content:
 
-![Bottom-left answer notification with a reply-preview icon and VS Code button](docs/screenshots/bottom-left-notification.png)
+![Answer preview with a completed reply and VS Code button](docs/screenshots/bottom-left-notification.png)
 
-| Working: flashing blue | Finished: steady green |
+| Working: flashing blue | Idle: steady green |
 | --- | --- |
-| ![Two active chats, separator, and blue reply bubble](docs/screenshots/topbar-blue.png) | ![Zero active chats, separator, and green reply bubble](docs/screenshots/topbar-green.png) |
+| ![Two chats working](docs/screenshots/topbar-blue.png) | ![No chats working](docs/screenshots/topbar-green.png) |
 
 The screenshots use sample content and activity counts.
 
@@ -68,7 +68,7 @@ Optional preview dependencies:
 sudo apt install gjs gir1.2-gtk-3.0
 ```
 
-For the optional Ubuntu top-bar indicator, also install `gir1.2-ayatanaappindicator3-0.1` and enable Ubuntu AppIndicators. The count, separator and logo are rendered together so Ubuntu preserves their order. Other tray implementations may size wide icons differently.
+For the optional Ubuntu top-bar activity count, also install `gir1.2-ayatanaappindicator3-0.1` and enable Ubuntu AppIndicators.
 
 A working X11/XWayland session is also required for the preview. Run **Codex Ubuntu Notifications: Check Configuration** to check the current session. Finding a binary alone does not prove its service or codecs work; runtime failures are reported too.
 
@@ -76,13 +76,13 @@ A working X11/XWayland session is also required for the preview. Run **Codex Ubu
 
 Use the activity-bar panel or VS Code settings. Settings are machine-local and cannot be supplied by a repository's workspace settings.
 
-The **Colors** section provides a color picker and editable hex field for each top-bar icon color and the notification's card, answer area, text, button, border and Codex badge. Hex fields accept values such as `#3b82f6`, `3b82f6` or `#abc`. Clear a field or use its reset button to restore the default; **Reset All Colors** clears every override. Changes save automatically and apply to subsequent notifications. The Codex label is centered beside the project name inside a rounded badge. Unset notification colors continue to follow the VS Code theme. Native Ubuntu notifications keep the desktop's colors.
+Use **Colors** to customize the working and idle activity states and the notification's backgrounds, text, buttons and borders. Each setting has a color picker and editable hex field. Hex fields accept values such as `#3b82f6`, `3b82f6` or `#abc`. Clear a field or use its reset button to restore the default; **Reset All Colors** clears every override. Changes save automatically and apply to subsequent notifications. Unset notification colors continue to follow the VS Code theme. Native Ubuntu notifications keep the desktop's colors.
 
 | Setting under `codexNotifier` | Default | Meaning |
 | --- | --- | --- |
 | `enabled` | `true` | Start or stop automatic monitoring. |
 | `mode` | `always` | `always` or `unfocused`. |
-| `topBarIndicator` | `true` | Show one shared top-bar count, separator and reply icon. |
+| `topBarIndicator` | `true` | Show the number of working chats across workspaces. |
 | `topBarFlash` | `true` | Flash blue while working; disable for static blue. |
 | `colors` | `{}` | Optional hex color overrides, editable using the sidebar color pickers. |
 | `desktopNotification` | `false` | Optionally show a native Ubuntu desktop notification. |
@@ -115,4 +115,4 @@ Imported audio is stored locally. Cross-window claims contain hashed identifiers
 
 ## License
 
-Code and original distributed artwork and sounds use the [MIT license subject to Commons Clause v1.0](LICENSE). Ordinary personal and work use is allowed. Selling the extension or a product/service whose value derives entirely or substantially from its functionality is restricted by the clause. This is source-available software. See [LICENSING.md](LICENSING.md) for the scope and [ASSETS.md](ASSETS.md) for asset provenance. No OpenAI logo is included in the current artwork.
+Code and original distributed artwork and sounds use the [MIT license subject to Commons Clause v1.0](LICENSE). Ordinary personal and work use is allowed. Selling the extension or a product/service whose value derives entirely or substantially from its functionality is restricted by the clause. This is source-available software. See [LICENSING.md](LICENSING.md) for the scope and [ASSETS.md](ASSETS.md) for asset provenance.

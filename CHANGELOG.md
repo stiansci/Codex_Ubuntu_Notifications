@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.26
+
+- Rewrite the introduction around answer previews and chat activity, remove icon-design and rendering details, and simplify screenshot captions and settings descriptions.
+
 ## 1.1.25
 
 - Apply the MIT License subject to Commons Clause License Condition v1.0 to project-owned code and original distributed assets. Ordinary work use remains allowed; the clause's sale restriction applies.
