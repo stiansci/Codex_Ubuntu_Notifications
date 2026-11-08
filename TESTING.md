@@ -1,4 +1,4 @@
-# Release verification for 1.1.24
+# Release verification for 1.1.25
 
 Status: release candidate. Human desktop validation is pending; no supported desktop is certified by automated tests.
 
@@ -26,6 +26,8 @@ Recorded 2026-11-08: the user supplied a successful 1.1.23 desktop smoke-test lo
 
 On 2026-11-08 the user also confirmed ownership of the manifest's `KaroTechnica` Marketplace publisher ID. Public GitHub repository/tag availability and the remaining desktop checklist are still pending; a local package build does not validate publishing authentication.
 
+Version 1.1.25 passes 68 JavaScript tests and 23 Python tests. The added tests use disposable Git repositories to verify real snapshot selection, immutable/idempotent tags, dirty-tree rejection, license checks before history tagging, safe version bumps and preservation of historical evidence. Licensing and release-tool changes do not replace the outstanding human desktop validation.
+
 ## Human desktop run
 
 ```bash
@@ -47,7 +49,7 @@ In the development host:
 10. Install the generated VSIX explicitly in a separate VS Code profile and repeat steps 1 through 4:
 
 ```bash
-code --profile CodexNotifierReleaseTest --install-extension dist/codex-ubuntu-notifications-1.1.24.vsix
+code --profile CodexNotifierReleaseTest --install-extension dist/codex-ubuntu-notifications-1.1.25.vsix
 code --profile CodexNotifierReleaseTest --new-window .
 ```
 
@@ -72,9 +74,10 @@ A desktop/session combination not offered by the distribution is not applicable,
 - No unhandled errors for missing tools or temporary database failures.
 - Manual matrix accurately records what was tested; limitations remain visible.
 - The GitHub repository link resolves and the publisher account owner confirms `KaroTechnica`.
-- Combined MIT + Commons Clause license, asset provenance, changelog and version agree.
+- Combined MIT + Commons Clause license, manifest declaration, asset provenance, changelog and version agree. No old MIT-only VSIX is uploaded as the new release.
 - The separate `-marketplace.vsix` passes its source and HTTPS-link checks. Its pinned public GitHub tag and screenshot URLs resolve before Marketplace upload.
 - Review the exact VSIX file list and commit diff, then authorize GitHub push and Marketplace publication separately.
+- Version tag, manifest version, source commit and `release-X.Y.Z.json` agree; the VSIX files match `SHA256SUMS-X.Y.Z.txt` from `npm run release:prepare`.
 # Top-bar indicator checks
 
 Run `python -m unittest discover -s test -p test_activity.py` for synthetic chat-count fixtures and `node test/indicator.test.js` for the process lifecycle. From a desktop terminal, `python test/check_indicator_desktop.py` performs a bounded smoke check on a private D-Bus session: idle green/0, active flashing blue/1, completion green/0 and single-instance ownership. It does not read real chat content or install anything.

@@ -28,7 +28,7 @@ def local_documentation(data):
         return f"{image}[{label}]({target})"
     return re.sub(r"(!?)\[([^\]\n]*)\]\(([^)\n]+)\)", restore, data.decode()).encode()
 expected = {"package.json", "extension.js", "preview-overlay.js", "codex-notifier.png", "icon.svg",
-            "README.md", "CHANGELOG.md", "LICENSE", "ASSETS.md", "TESTING.md", "PUBLICATION.md"}
+            "README.md", "CHANGELOG.md", "LICENSE", "LICENSING.md", "VERSIONING.md", "ASSETS.md", "TESTING.md", "PUBLICATION.md"}
 expected.update({"lib/core.js", "lib/extension.js", "lib/monitor.js", "lib/platform.js", "lib/theme.js", "lib/worker.py",
                  "media/sidebar.js", "media/sidebar.html", "media/sidebar.css"})
 expected.update(f"sounds/synth-{n}.wav" for n in range(1, 5))
@@ -49,6 +49,8 @@ with zipfile.ZipFile(vsix) as archive:
     actual = set(entries)
     missing, unexpected = expected - actual, actual - expected
     assert not missing and not unexpected, f"Missing entries: {sorted(missing)}; unexpected entries: {sorted(unexpected)}. Rebuild with npm run package."
+    assert package["license"] == "SEE LICENSE IN LICENSE", "Declare the combined license instead of unrestricted MIT."
+    assert archive.read(entries["LICENSE"]).startswith(b"Commons Clause License Condition v1.0"), "The Commons Clause notice is missing."
     for name in expected:
         packaged = archive.read(entries[name])
         source = (root / name).read_bytes()

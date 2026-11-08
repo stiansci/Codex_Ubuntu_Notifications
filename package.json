@@ -10,7 +10,7 @@
     "type": "git",
     "url": "https://github.com/stiansci/Codex_Ubuntu_Notifications.git"
   },
-  "version": "1.1.24",
+  "version": "1.1.25",
   "description": "Desktop completion notifications, optional answer previews and audio for local Codex workspaces on Ubuntu, with dependency diagnostics.",
   "engines": {
     "vscode": "^1.90.0"
@@ -252,7 +252,13 @@
     "assets:icons": "python3 scripts/generate-assets.py",
     "public:check": "python3 scripts/check-public.py",
     "package:marketplace": "node scripts/package.js --marketplace",
-    "package:check:marketplace": "python3 scripts/check-package.py --marketplace"
+    "package:check:marketplace": "python3 scripts/check-package.py --marketplace",
+    "versions": "node scripts/versions.js list",
+    "version:bump": "node scripts/versions.js bump",
+    "version:tag": "node scripts/versions.js tag",
+    "versions:tag-history": "node scripts/versions.js tag-history",
+    "version:check": "node scripts/versions.js check-tag",
+    "release:prepare": "node scripts/prepare-release.js"
   },
   "devDependencies": {
     "@vscode/vsce": "4.1.0"

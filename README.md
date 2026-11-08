@@ -115,5 +115,4 @@ Imported audio is stored locally. Cross-window claims contain hashed identifiers
 
 ## License
 
-Code and original reply-preview artwork use the [MIT license subject to Commons Clause v1.0](LICENSE). No OpenAI logo is included in the current artwork. See [ASSETS.md](ASSETS.md) for provenance and regeneration instructions.
-
+Code and original distributed artwork and sounds use the [MIT license subject to Commons Clause v1.0](LICENSE). Ordinary personal and work use is allowed. Selling the extension or a product/service whose value derives entirely or substantially from its functionality is restricted by the clause. This is source-available software. See [LICENSING.md](LICENSING.md) for the scope and [ASSETS.md](ASSETS.md) for asset provenance. No OpenAI logo is included in the current artwork.

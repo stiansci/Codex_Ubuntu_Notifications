@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.25
+
+- Apply the MIT License subject to Commons Clause License Condition v1.0 to project-owned code and original distributed assets. Ordinary work use remains allowed; the clause's sale restriction applies.
+- Declare the complete license through `SEE LICENSE IN LICENSE` and include a plain-language licensing guide in both VSIX variants.
+- Add version-history listing, safe version bumps and immutable local version tags tied to actual committed manifests.
+- Add verified release preparation with both VSIX variants, source commit records, release notes and SHA-256 checksums.
+- Add a manually invoked GitHub Actions workflow that prepares a draft prerelease for human review; Marketplace publication remains separate.
+- Preserve the original unpublished history and old MIT-only build archives privately before reissuing local development snapshots with the selected combined terms.
+
 ## 1.1.24
 
 - Replace the bell with an original miniature agent-reply notification card for the Marketplace icon, popup and sidebar header.

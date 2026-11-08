@@ -9,7 +9,7 @@ design source is private and is not included in the public repository.
 - `media/codex-blue.svg`, `media/codex-blue-dim.svg`, `media/codex-green.svg`, and `media/codex-gray.svg`: color variants of the same original reply glyph. The filenames identify the extension's Codex activity states; their geometry contains no OpenAI, Microsoft or Ubuntu logos.
 - `sounds/synth-1.wav` through `sounds/synth-4.wav`: four original stereo PCM startup cues supplied by the project author. The distributed cues retain their original soft stereo texture, with notes retuned into brighter major chords and durations shortened to 1.1 seconds. Their production scripts are intentionally private; the committed WAV files are the distribution artifacts.
 
-The original reply-preview artwork, bundled sounds and public icon generator are distributed under the repository's MIT license subject to Commons Clause v1.0. Current distributed artwork contains no copied vendor logo geometry. Earlier visual experiments are local private material and are not public distribution sources.
+The original reply-preview artwork, bundled sounds and public icon generator are distributed under the repository's MIT license subject to Commons Clause v1.0. See [LICENSE](LICENSE) and [LICENSING.md](LICENSING.md) for the combined terms and their scope. Third-party rights and licenses are unchanged. Current distributed artwork contains no copied vendor logo geometry. Earlier visual experiments are local private material and are not public distribution sources.
 Icon generation requires the development-only Pillow dependency in `requirements-assets.txt`, GJS and GdkPixbuf's SVG loader. The extension itself has no Pillow dependency.
 
 With the `aiml` environment already active:
