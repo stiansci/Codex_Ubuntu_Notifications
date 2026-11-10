@@ -10,6 +10,31 @@ import time
 MAX_TAIL = 2 * 1024 * 1024
 QUIET_SECONDS = 15 * 60
 TERMINAL = {"task_complete", "turn_aborted", "task_aborted", "task_failed"}
+WORK_ITEMS = {"reasoning", "function_call", "custom_tool_call"}
+
+
+def reverse_records(stream, size):
+    """Read complete JSONL records newest first, with bounded chunks and record buffers."""
+    suffix, discard = b"", True
+    while size:
+        start = max(0, size - MAX_TAIL)
+        stream.seek(start)
+        parts = stream.read(size - start).split(b"\n")
+        if len(parts) > 1:
+            # The first suffix is an unfinished last record (or the empty bytes
+            # after the final newline). Oversized records are skipped as well.
+            if not discard and len(parts[-1]) + len(suffix) <= MAX_TAIL:
+                yield parts[-1] + suffix
+            yield from reversed(parts[1:-1])
+            suffix, discard = parts[0], False
+        elif not discard:
+            if len(parts[0]) + len(suffix) > MAX_TAIL:
+                suffix, discard = b"", True
+            else:
+                suffix = parts[0] + suffix
+        size = start
+    if not discard:
+        yield suffix
 
 
 class Activity:
@@ -27,35 +52,42 @@ class Activity:
 
     def lifecycle(self, file):
         stat = file.stat()
-        key = (stat.st_ino, stat.st_size, stat.st_mtime_ns)
+        key = (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns)
         cached = self.cache.get(file)
         if cached and cached[0] == key:
             return cached[1], stat.st_mtime
         state = None
         with file.open("rb") as stream:
-            offset = max(0, stat.st_size - MAX_TAIL)
-            stream.seek(offset)
-            if offset:
-                stream.readline()
-            for line in stream:
-                if not line.endswith(b"\n"):
-                    break
+            for line in reverse_records(stream, stat.st_size):
                 try:
                     record = json.loads(line)
                     payload = record.get("payload", {})
-                    if record.get("type") != "event_msg":
-                        continue
                     kind = payload.get("type")
-                    if kind == "task_started" or kind in TERMINAL:
-                        timestamp = datetime.fromisoformat(record["timestamp"].replace("Z", "+00:00")).timestamp()
-                        state = (kind, timestamp)
-                    elif kind == "agent_message" and payload.get("phase") in ("final", "final_answer"):
-                        state = ("task_complete", 0)
+                    phase = payload.get("phase")
+                    if record.get("type") == "event_msg":
+                        if kind == "agent_message" and phase in ("final", "final_answer"):
+                            kind = "task_complete"
+                        elif kind == "agent_message" and phase == "commentary":
+                            kind = "task_started"
+                        elif kind != "task_started" and kind not in TERMINAL:
+                            continue
+                    elif record.get("type") == "response_item":
+                        if kind in WORK_ITEMS:
+                            kind = "task_started"
+                        elif kind == "message" and payload.get("role") == "assistant" and phase in ("final", "final_answer"):
+                            kind = "task_complete"
+                        else:
+                            continue
+                    else:
+                        continue
+                    timestamp = datetime.fromisoformat(record["timestamp"].replace("Z", "+00:00")).timestamp()
+                    state = (kind, timestamp)
+                    break
                 except (ValueError, TypeError, KeyError, AttributeError):
                     continue
-        # A long tool response may push the start outside the bounded tail.
-        if state is None and cached:
-            state = cached[1]
+        # Continued commentary, reasoning or tool calls can follow a final
+        # answer without another task_started event. Outputs and token usage
+        # alone do not reopen a completed or cancelled chat.
         self.cache[file] = (key, state)
         return state, stat.st_mtime
 

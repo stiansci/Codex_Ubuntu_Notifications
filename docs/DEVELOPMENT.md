@@ -48,7 +48,7 @@ Unknown schemas produce an incompatibility state rather than guessed database na
 
 The most specific containing canonical workspace owns an answer. Cross-window atomic claims use hashed `(Codex home, thread, turn)` identifiers in a private temporary directory. Eligible windows claim at most once; claims expire after seven days. Failure after claiming can lose an alert. Reader restarts retain extension-session deduplication.
 
-The shared indicator reads chat lifecycle events across workspaces. Previous-boot sessions, archived chats, CLI chats and subagents are excluded. Quiet unfinished sessions become uncertain after 15 minutes. The first owning window's Codex-home configuration determines its scope. Activity polling preserves menu items for keyboard navigation.
+The shared indicator reads chat lifecycle events across workspaces. Commentary, reasoning and tool calls also identify continued work after a final answer or a resume without another start event. Trailing usage records and tool outputs do not reopen completed work. Changed logs are scanned backwards to the latest state evidence in bounded chunks, skipping incomplete or oversized records, so large outputs cannot hide earlier lifecycle events. Unchanged files reuse their cached state. Previous-boot sessions, archived chats, CLI chats and subagents are excluded. Quiet unfinished sessions become uncertain after 15 minutes. The first owning window's Codex-home configuration determines its scope. Activity polling preserves menu items for keyboard navigation.
 
 ## Desktop processes
 

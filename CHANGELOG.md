@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.29
+
+- Count continued commentary, reasoning and tool calls after an earlier final answer, including resumed work without a new start event.
+- Recover activity and completion states beyond large tool outputs, including after restarting the indicator.
+
 ## 1.1.28
 
 - Check customer documentation throughout the exact branch and tag histories selected for publication.
