@@ -32,9 +32,12 @@ const durationSec = Math.max(2, Math.min(30, Number(payload.durationSec) || 7));
 imports.searchPath.unshift(GLib.build_filenamev([GLib.path_get_dirname(imports.system.programPath), 'lib']));
 const Markdown = imports.notificationMarkdown;
 
+// A managed X11 window receives clicks over native Wayland apps on GNOME.
 const win = new Gtk.Window({
-  type: Gtk.WindowType.POPUP
+  type: Gtk.WindowType.TOPLEVEL,
+  title: "Codex Ubuntu Notifications"
 });
+win.set_type_hint(Gdk.WindowTypeHint.NOTIFICATION);
 win.set_decorated(false);
 win.set_skip_taskbar_hint(true);
 win.set_skip_pager_hint(true);
@@ -88,18 +91,26 @@ const css = `
   }
   .codex-badge .header-sub { color: #0d6847; }
   .close-btn {
-    background: transparent;
-    border: none;
-    border-radius: 99px;
-    padding: 4px 7px;
-    color: #64748b;
-    font-size: 14px;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    min-width: 24px;
+    min-height: 24px;
+    padding: 0;
+    color: #991b1b;
+    font-size: 15px;
     font-weight: 700;
     box-shadow: none;
+    text-shadow: none;
   }
   .close-btn:hover {
-    background-color: #f1f5f9;
-    color: #0f172a;
+    background-color: #fecaca;
+    border-color: #fca5a5;
+    color: #7f1d1d;
+  }
+  .close-btn:active {
+    background-color: #fca5a5;
+    border-color: #f87171;
   }
   .preview-box {
     background-color: #f1f5f4;
@@ -197,6 +208,7 @@ headerRow.pack_start(titleBox, true, true, 0);
 const closeBtn = new Gtk.Button({
   label: "✕"
 });
+closeBtn.get_accessible().set_name("Dismiss notification");
 closeBtn.get_style_context().add_class("close-btn");
 closeBtn.set_valign(Gtk.Align.CENTER);
 headerRow.pack_end(closeBtn, false, false, 0);
@@ -399,8 +411,10 @@ function startCloseAnimation() {
   });
 }
 
-closeBtn.connect("clicked", () => {
+closeBtn.connect("clicked", startCloseAnimation);
+win.connect("delete-event", () => {
   startCloseAnimation();
+  return true;
 });
 
 actionBtn.connect("clicked", () => {
