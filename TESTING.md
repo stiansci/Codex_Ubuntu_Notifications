@@ -1,4 +1,4 @@
-# Release verification for 1.1.29
+# Release verification for 1.1.30
 
 Status: release candidate. Human desktop validation is pending; no supported desktop is certified by automated tests.
 
@@ -30,6 +30,8 @@ Version 1.1.25 passes 68 JavaScript tests and 23 Python tests. The added tests u
 
 Version 1.1.29 passes 68 JavaScript tests and 32 Python tests. Activity regressions cover continued work after a final answer, resumed tool activity without a new start event, large outputs hiding lifecycle markers, partial records, file replacement and completed/cancelled sessions with trailing usage or output records. A bounded read-only check of current activity detected all three working user chats with no uncertain sessions. This verifies reader output; visual confirmation of the updated desktop indicator remains a human check.
 
+On 2026-11-23, the user confirmed the compact close button worked in the desktop build containing the 1.1.30 fix. An isolated GNOME Wayland test verified first-click dismissal, automatic dismissal, and the button's appearance with light and dark themes.
+
 ## Human desktop run
 
 ```bash
@@ -51,7 +53,7 @@ In the development host:
 10. Install the generated VSIX explicitly in a separate VS Code profile and repeat steps 1 through 4:
 
 ```bash
-code --profile CodexNotifierReleaseTest --install-extension dist/codex-ubuntu-notifications-1.1.29.vsix
+code --profile CodexNotifierReleaseTest --install-extension dist/codex-ubuntu-notifications-1.1.30.vsix
 code --profile CodexNotifierReleaseTest --new-window .
 ```
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.30
+
+- Fix clicks passing through the bottom-left notification on GNOME Wayland so the close button dismisses the preview.
+- Give the close button a compact, softly rounded red square and a screen-reader label.
+
 ## 1.1.29
 
 - Count continued commentary, reasoning and tool calls after an earlier final answer, including resumed work without a new start event.
