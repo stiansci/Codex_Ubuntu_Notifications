@@ -47,7 +47,8 @@ function openCode(cwd) {
     try {
         const launcher = new Gio.SubprocessLauncher({ flags: Gio.SubprocessFlags.NONE });
         launcher.unsetenv("ELECTRON_RUN_AS_NODE");
-        launcher.spawnv([config.code, "--reuse-window", ...(cwd ? ["--", cwd] : [])]);
+        // The Snap launcher appends options, so pass the absolute workspace path directly.
+        launcher.spawnv([config.code, "--reuse-window", ...(cwd ? [cwd] : [])]);
     } catch (e) { logError(e); }
 }
 heading.connect("activate", () => openCode());

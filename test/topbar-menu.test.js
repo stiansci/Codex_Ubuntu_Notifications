@@ -76,20 +76,22 @@ function indicatorMenu() {
 
 test("activity polling preserves keyboard targets and removes only completed workspaces", () => {
   const ui = indicatorMenu();
-  const snapshot = { status: "ready", count: 1, uncertain: 0, chats: [{ cwd: "/tmp/a", title: "Private title" }] };
+  const snapshot = { status: "ready", count: 1, uncertain: 0, chats: [{ cwd: "/tmp/a project", title: "Private title" }] };
   ui.deliver(snapshot);
   const workspace = ui.children()[1];
-  assert.equal(workspace.label, "Open workspace: a (1 chat working)");
+  assert.equal(workspace.label, "Open workspace: a project (1 chat working)");
   assert.equal(workspace.sensitive, true);
   assert.equal(ui.children()[0].sensitive, true);
   ui.deliver(snapshot);
   assert.equal(ui.children()[1], workspace);
   assert.equal(workspace.destroyed, undefined);
-  ui.deliver({ ...snapshot, count: 3, chats: [{ cwd: "/tmp/0" }, ...snapshot.chats, { cwd: "/tmp/a" }] });
+  ui.deliver({ ...snapshot, count: 3, chats: [{ cwd: "/tmp/0" }, ...snapshot.chats, { cwd: "/tmp/a project" }] });
   assert.equal(ui.children()[2], workspace);
-  assert.equal(workspace.label, "Open workspace: a (2 chats working)");
+  assert.equal(workspace.label, "Open workspace: a project (2 chats working)");
   workspace.signals.activate();
-  assert.deepEqual(Array.from(ui.launches[0]), ["/tmp/VS Code/code", "--reuse-window", "--", "/tmp/a"]);
+  assert.deepEqual(Array.from(ui.launches[0]), ["/tmp/VS Code/code", "--reuse-window", "/tmp/a project"]);
+  ui.children()[0].signals.activate();
+  assert.deepEqual(Array.from(ui.launches[1]), ["/tmp/VS Code/code", "--reuse-window"]);
   ui.deliver({ status: "ready", count: 0, uncertain: 0, chats: [] });
   assert.equal(workspace.destroyed, true);
   assert.equal(ui.children().length, 3);

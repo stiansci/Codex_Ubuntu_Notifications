@@ -21,7 +21,7 @@ imports.searchPath.unshift(GLib.build_filenamev([GLib.path_get_dirname(imports.s
 if (ARGV[0] !== "--stdin") imports.system.exit(1);
 const payload = imports.payload.readStdinPayload();
 const workspaceLabel = payload.workspaceLabel || "Workspace";
-const workspacePath = payload.workspacePath || "";
+const workspacePath = typeof payload.workspacePath === "string" ? payload.workspacePath : "";
 const turnTitle = payload.title || "Turn completed";
 const rawMessage = payload.message || "Finished answering your request.";
 const iconPath = payload.iconPath || "";
@@ -429,7 +429,8 @@ actionBtn.connect("clicked", () => {
       return;
     }
     const args = [codeBin, "--reuse-window"];
-    if (workspacePath) args.push("--", workspacePath);
+    // Keep options appended by the Snap launcher out of the workspace paths.
+    if (GLib.path_is_absolute(workspacePath)) args.push(workspacePath);
     const launcher = new Gio.SubprocessLauncher({ flags: Gio.SubprocessFlags.NONE });
     launcher.unsetenv("ELECTRON_RUN_AS_NODE");
     const child = launcher.spawnv(args);
