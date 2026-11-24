@@ -1,4 +1,4 @@
-# Release verification for 1.1.30
+# Release verification for 1.1.31
 
 Status: release candidate. Human desktop validation is pending; no supported desktop is certified by automated tests.
 
@@ -32,6 +32,8 @@ Version 1.1.29 passes 68 JavaScript tests and 32 Python tests. Activity regressi
 
 On 2026-11-23, the user confirmed the compact close button worked in the desktop build containing the 1.1.30 fix. An isolated GNOME Wayland test verified first-click dismissal, automatic dismissal, and the button's appearance with light and dark themes.
 
+For the 1.1.31 fix, an isolated GTK preview test confirmed that the **Open VS Code** button passes a workspace path containing spaces as one argument. The installed VS Code Snap CLI parsed the appended `--ozone-platform=x11` as a launch option with the updated argument order.
+
 ## Human desktop run
 
 ```bash
@@ -53,7 +55,7 @@ In the development host:
 10. Install the generated VSIX explicitly in a separate VS Code profile and repeat steps 1 through 4:
 
 ```bash
-code --profile CodexNotifierReleaseTest --install-extension dist/codex-ubuntu-notifications-1.1.30.vsix
+code --profile CodexNotifierReleaseTest --install-extension dist/codex-ubuntu-notifications-1.1.31.vsix
 code --profile CodexNotifierReleaseTest --new-window .
 ```
 

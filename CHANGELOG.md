@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.31
+
+- Fix an extra `--ozone-platform=x11` tab when opening a workspace from the Ubuntu top bar or notification preview in the Snap version of VS Code.
+
 ## 1.1.30
 
 - Fix clicks passing through the bottom-left notification on GNOME Wayland so the close button dismisses the preview.
